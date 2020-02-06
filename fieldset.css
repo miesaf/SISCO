@@ -1,0 +1,37 @@
+fieldset.borang{
+   border: solid 1px;  
+   float:left;
+}
+
+t.strike {
+    text-decoration: line-through;
+}
+
+t.selection {
+    font-size: 12px;
+	font-family: "Arial", Times, sans-serif;
+}
+
+t.borang {
+    font-size: 12px;
+	font-family: "Arial", Times, sans-serif;
+}
+
+t.umum {
+	font-family: "Arial", Times, sans-serif;
+}
+
+/*
+table{
+   border: solid 1px;
+}
+*/
+
+/*
+div{
+   width: 80%;   
+   overflow:hidden;
+   border: solid 1px;
+   padding: 1em;
+}
+*/
