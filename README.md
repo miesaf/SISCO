@@ -1,7 +1,4 @@
-# SISCO
-Sistem Kokurikulum UiTM Cawangan Johor
-
-**Sport Unit Inventory Borrowing System (SUIBS)**
+**Sistem Kokurikulum UiTM Cawangan Johor (SISCO)**
 =====================
 
 ## Note
