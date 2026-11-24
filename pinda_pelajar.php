@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if((!$_SESSION['login_sisco']) || ($_SESSION['priv_sisco'] == "TRNR"))
+		if((empty($_SESSION['login_sisco'])) || ($_SESSION['priv_sisco'] == "TRNR"))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name	= $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 		
 		// Registering data into the database
 		if(isset($_POST['DAFTAR']))
@@ -49,10 +50,10 @@
 			$S_EXAM		= $_POST['S_EXAM'];
 			
 			//SQL query command
-			$sql="UPDATE STUDENT SET S_ID = '$S_ID', S_NAME = '$S_NAME', S_IC = '$S_IC', S_SEX = '$S_SEX', S_ADDR = '$S_ADDR', S_TEL = '$S_TEL', S_MAIL = '$S_MAIL', S_RLTV = '$S_RLTV', S_RVNR = '$S_RVNR', S_SIZE = '$S_SIZE', S_RLGN = '$S_RLGN', S_PROG = '$S_PROG', S_PART = '$S_PART', S_CRS = '$S_CRS', S_PLTN = '$S_PLTN', S_RSDN = '$S_RSDN', S_BLOOD = '$S_BLOOD', S_HEALTH = '$S_HEALTH', S_ALGY = '$S_ALGY', S_FPNT = '$S_FPNT', S_EXAM = '$S_EXAM' WHERE S_ID = '$ID2'";
+			$sql="UPDATE STUDENT SET S_ID = ?, S_NAME = ?, S_IC = ?, S_SEX = ?, S_ADDR = ?, S_TEL = ?, S_MAIL = ?, S_RLTV = ?, S_RVNR = ?, S_SIZE = ?, S_RLGN = ?, S_PROG = ?, S_PART = ?, S_CRS = ?, S_PLTN = ?, S_RSDN = ?, S_BLOOD = ?, S_HEALTH = ?, S_ALGY = ?, S_FPNT = ?, S_EXAM = ? WHERE S_ID = ?";
 			
 			// execute query
-			$exe_sql = mysqli_query($condb, $sql);
+			$exe_sql = db_query($sql, [$S_ID, $S_NAME, $S_IC, $S_SEX, $S_ADDR, $S_TEL, $S_MAIL, $S_RLTV, $S_RVNR, $S_SIZE, $S_RLGN, $S_PROG, $S_PART, $S_CRS, $S_PLTN, $S_RSDN, $S_BLOOD, $S_HEALTH, $S_ALGY, $S_FPNT, $S_EXAM, $ID2]);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -79,6 +80,8 @@
 						</head>
 					</html>';
 			}
+			// the alert above redirects; the form below is not needed
+			exit;
 		}
 	?>
 	
@@ -143,7 +146,7 @@
             <ul class="nav navbar-top-links navbar-right">
                 <li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
-					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -261,13 +264,14 @@
 					$ID = $_GET['ID'];
 			
 					// create the query
-					$sql = "SELECT * FROM STUDENT WHERE S_ID = $ID";
+					$sql = "SELECT * FROM STUDENT WHERE S_ID = ?";
 					
 					// execute query
-					$result = mysqli_query($condb, $sql) or die("SQL select statement failed");
+					$result = db_query($sql, [$ID]) or die("SQL select statement failed");
 					
 					// iterate through all rows in result set
 					$row = mysqli_fetch_array($result);
+					if (!$row) { echo '<script>window.alert("Rekod tidak dijumpai."); window.history.go(-1);</script>'; exit; }
 					
 					// extract specific fields
 					$S_ID		= $row['S_ID'];
@@ -293,17 +297,17 @@
 					$S_EXAM		= $row['S_EXAM'];
 					
 					// Decode codes into string
-					$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = '$S_CRS'";
-					$result_dispay = mysqli_query($condb, $sql_display);
+					$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = ?";
+					$result_dispay = db_query($sql_display, [$S_CRS]);
 					while($row = mysqli_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
 					
-					$sql_display = "SELECT PR_NAME FROM PROGRAM WHERE PR_ID = '$S_PROG'";
-					$result_dispay = mysqli_query($condb, $sql_display);
+					$sql_display = "SELECT PR_NAME FROM PROGRAM WHERE PR_ID = ?";
+					$result_dispay = db_query($sql_display, [$S_PROG]);
 					while($row = mysqli_fetch_array($result_dispay)) { $DPROG = $row["PR_NAME"]; }
 				?>
 
 				<form class="form-register" method="post" action="pinda_pelajar.php">
-					<input type="hidden" name="ID2" value="<?php print ($S_ID); ?>">
+					<input type="hidden" name="ID2" value="<?php print(e($S_ID)); ?>">
 					<input type="hidden" name="DAFTAR" value="YES">
 
 					<div class="form-register-with-email">
@@ -318,21 +322,21 @@
 							<div class="form-row"><!--No Matrik-->
 								<label>
 									<span >Nombor Matrik :</span>
-									<input type="text" name="S_ID" value="<?php print($S_ID); ?>">
+									<input type="text" name="S_ID" value="<?php print(e($S_ID)); ?>">
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Nama-->
 								<label>
 									<span >Nama :</span>
-									<input type="text" name="S_NAME" value="<?php print($S_NAME); ?>">
+									<input type="text" name="S_NAME" value="<?php print(e($S_NAME)); ?>">
 								</label>
 							</div>
 							
 							<div class="form-row"><!--IC-->
 								<label>
 									<span>Nombor K/P :</span>
-									<input type="text" name="S_IC" placeholder="xxxxxx-xx-xxxx" value="<?php print($S_IC); ?>">
+									<input type="text" name="S_IC" placeholder="xxxxxx-xx-xxxx" value="<?php print(e($S_IC)); ?>">
 								</label>
 							</div>
 							
@@ -340,7 +344,7 @@
 								<label>
 									<span>Jantina :</span>
 									<select name="S_SEX">
-										<option value="<?php print($S_SEX); ?>" selected><?php print($S_SEX); ?></option>
+										<option value="<?php print(e($S_SEX)); ?>" selected><?php print(e($S_SEX)); ?></option>
 										<option></option>
 										<option>Sila pilih</option>
 										<option value="Lelaki">Lelaki</option>
@@ -352,21 +356,21 @@
 							<div class="form-row"><!--Address-->
 								<label>
 									<span>Alamat :</span>
-									<textarea name="S_ADDR"><?php print($S_ADDR); ?></textarea>
+									<textarea name="S_ADDR"><?php print(e($S_ADDR)); ?></textarea>
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Phone-->
 								<label>
 									<span>Nombor Telefon :</span>
-									<input type="text" name="S_TEL" placeholder="xxx-xxxx xxx" value="<?php print($S_TEL); ?>">
+									<input type="text" name="S_TEL" placeholder="xxx-xxxx xxx" value="<?php print(e($S_TEL)); ?>">
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Email-->
 								<label>
 									<span>E-Mel :</span>
-									<input type="text" name="S_MAIL" placeholder="xxxxx@xxx.com" value="<?php print($S_MAIL); ?>">
+									<input type="text" name="S_MAIL" placeholder="xxxxx@xxx.com" value="<?php print(e($S_MAIL)); ?>">
 								</label>
 							</div>
 							
@@ -377,14 +381,14 @@
 							<div class="form-row"><!--Relative-->
 								<label>
 									<span>Nama Waris :</span>
-									<input type="text" name="S_RLTV" placeholder = "Nama Bapa/Ibu/Saudara" value="<?php print($S_RLTV); ?>">
+									<input type="text" name="S_RLTV" placeholder = "Nama Bapa/Ibu/Saudara" value="<?php print(e($S_RLTV)); ?>">
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Phone Relative-->
 								<label>
 									<span>Nombor Waris :</span>
-									<input type="text" name="S_RVNR" placeholder="xxx-xxxx xxx" value="<?php print($S_RVNR); ?>">
+									<input type="text" name="S_RVNR" placeholder="xxx-xxxx xxx" value="<?php print(e($S_RVNR)); ?>">
 								</label>
 							</div>
 							
@@ -396,7 +400,7 @@
 								<label>
 									<span>Saiz Baju :</span>
 									<select name="S_SIZE">
-										<option value="<?php print($S_SIZE); ?>" selected><?php print($S_SIZE); ?></option>
+										<option value="<?php print(e($S_SIZE)); ?>" selected><?php print(e($S_SIZE)); ?></option>
 										<option></option>
 										<option>Sila pilih</option>
 										<option value="XS">XS</option>
@@ -413,7 +417,7 @@
 							<div class="form-row"><!--Religion-->
 								<label>
 									<span>Agama :</span>
-									<input type="text" name="S_RLGN" value="<?php print($S_RLGN); ?>">
+									<input type="text" name="S_RLGN" value="<?php print(e($S_RLGN)); ?>">
 								</label>
 							</div>
 							
@@ -421,17 +425,17 @@
 								<label>
 									<span>Program :</span>
 									<select name="S_PROG">
-										<option value="<?php print($S_PROG); ?>" selected><?php print($S_PROG . " - " . $DPROG); ?></option>
+										<option value="<?php print(e($S_PROG)); ?>" selected><?php print(e($S_PROG . " - " . $DPROG)); ?></option>
 										<option></option>
 										<option> Sila pilih </option>
 											<?php
 											$sql_choose = "SELECT * FROM PROGRAM ORDER BY PR_ID";
-											$result_choose = mysqli_query($condb, $sql_choose);
+											$result_choose = db_query($sql_choose);
 											while ($row = mysqli_fetch_array($result_choose))
 											{
 												$PROG1 = $row["PR_ID"];
 												$PROG2 = $row["PR_NAME"];
-												echo '<option value="' . $PROG1 . '"> ' . $PROG1 . ' - ' . $PROG2 . '</option>';
+												echo '<option value="' . e($PROG1) . '"> ' . e($PROG1) . ' - ' . e($PROG2) . '</option>';
 											} ?>
 									</select>
 								</label>
@@ -441,7 +445,7 @@
 								<label>
 									<span>Bahagian :</span>
 									<select name="S_PART">
-										<option value="<?php print($S_PART); ?>" selected><?php print($S_PART); ?></option>
+										<option value="<?php print(e($S_PART)); ?>" selected><?php print(e($S_PART)); ?></option>
 										<option></option>
 										<option>Sila pilih</option>
 										<option value="1">1</option>
@@ -460,17 +464,17 @@
 								<label>
 									<span>Kursus Kor :</span>
 									<select name="S_CRS">
-										<option value="<?php print($S_CRS); ?>" selected><?php print($S_CRS . " - " . $DCRS); ?></option>
+										<option value="<?php print(e($S_CRS)); ?>" selected><?php print(e($S_CRS . " - " . $DCRS)); ?></option>
 										<option></option>
 										<option> Sila pilih </option>
 											<?php
 											$sql_choose = "SELECT * FROM COURSE ORDER BY CR_ID";
-											$result_choose = mysqli_query($condb, $sql_choose);
+											$result_choose = db_query($sql_choose);
 											while ($row = mysqli_fetch_array($result_choose))
 											{
 												$CRS1 = $row["CR_ID"];
 												$CRS2 = $row["CR_NAME"];
-												echo '<option value="' . $CRS1 . '"> ' . $CRS1 . ' - ' . $CRS2 . '</option>';
+												echo '<option value="' . e($CRS1) . '"> ' . e($CRS1) . ' - ' . e($CRS2) . '</option>';
 											} ?>
 									</select>
 								</label>
@@ -480,7 +484,7 @@
 								<label>
 									<span>Platun :</span>
 									<select name="S_PLTN">
-										<option value="<?php print($S_PLTN); ?>" selected><?php print($S_PLTN); ?></option>
+										<option value="<?php print(e($S_PLTN)); ?>" selected><?php print(e($S_PLTN)); ?></option>
 										<option></option>
 										<option>Sila pilih</option>
 										<option value="A">A</option>
@@ -499,7 +503,7 @@
 							<div class="form-row"><!--Residency-->
 								<label>
 									<span>Kolej Kediaman :</span>
-									<input type="text" name="S_RSDN" placeholder="eg:Taming Sari" value="<?php print($S_RSDN); ?>">
+									<input type="text" name="S_RSDN" placeholder="eg:Taming Sari" value="<?php print(e($S_RSDN)); ?>">
 								</label>
 							</div>
 							
@@ -507,7 +511,7 @@
 								<label>
 									<span>Kumpulan Darah :</span>
 									<select name="S_BLOOD">
-										<option value="<?php print($S_BLOOD); ?>" selected><?php print($S_BLOOD); ?></option>
+										<option value="<?php print(e($S_BLOOD)); ?>" selected><?php print(e($S_BLOOD)); ?></option>
 										<option></option>
 										<option>Sila pilih</option>
 										<option value="AB Positif"> AB Positif </option>
@@ -525,28 +529,28 @@
 							<div class="form-row"><!--Remarks-->
 								<label>
 									<span>Sejarah Kesihatan :</span>
-									<textarea name="S_HEALTH"><?php print($S_HEALTH); ?></textarea>
+									<textarea name="S_HEALTH"><?php print(e($S_HEALTH)); ?></textarea>
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Allergy-->
 								<label>
 									<span>Alahan :</span>
-									<input type="text" name="S_ALGY" value="<?php print($S_ALGY); ?>">
+									<input type="text" name="S_ALGY" value="<?php print(e($S_ALGY)); ?>">
 								</label>
 							</div>
 
 							<div class="form-row"><!--Allergy-->
 								<label>
 									<span>Markah Latihan Padang :</span>
-									<input type="text" name="S_FPNT" value="<?php print($S_FPNT); ?>">
+									<input type="text" name="S_FPNT" value="<?php print(e($S_FPNT)); ?>">
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Allergy-->
 								<label>
 									<span>Markah Peperiksaan Akhir :</span>
-									<input type="text" name="S_EXAM" value="<?php print($S_EXAM); ?>">
+									<input type="text" name="S_EXAM" value="<?php print(e($S_EXAM)); ?>">
 								</label>
 							</div>
 

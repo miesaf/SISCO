@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'] || ($_SESSION['priv_sisco'] != "TRNR"))
+		if(empty($_SESSION['login_sisco']) || ($_SESSION['priv_sisco'] != "TRNR"))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name = $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 		
 		// Registering data into the database
 		if(isset($_POST['DAFTAR']))
@@ -25,10 +26,10 @@
 			$S_EXAM		= $_POST['S_EXAM'];
 			
 			//SQL query command
-			$sql="UPDATE STUDENT SET S_FPNT = '$S_FPNT', S_EXAM = '$S_EXAM' WHERE S_ID = '$ID2'";
+			$sql="UPDATE STUDENT SET S_FPNT = ?, S_EXAM = ? WHERE S_ID = ?";
 			
 			// execute query
-			$exe_sql = mysqli_query($condb, $sql);
+			$exe_sql = db_query($sql, [$S_FPNT, $S_EXAM, $ID2]);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -55,6 +56,8 @@
 						</head>
 					</html>';
 			}
+			// the alert above redirects; the form below is not needed
+			exit;
 		}
 	?>
 	
@@ -115,7 +118,7 @@
             <ul class="nav navbar-top-links navbar-right">
                 <li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
-					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -228,8 +231,8 @@
 			<?php
 				$PINDA_ID	= $_GET['ID'];
 				$T_ID	= $_SESSION['ident_sisco'];
-				$sql_display = "SELECT T_CRS, T_PLTN FROM TRAINER WHERE T_ID = '$T_ID'";
-				$result_dispay = mysqli_query($condb, $sql_display);
+				$sql_display = "SELECT T_CRS, T_PLTN FROM TRAINER WHERE T_ID = ?";
+				$result_dispay = db_query($sql_display, [$T_ID]);
 				while($row = mysqli_fetch_array($result_dispay))
 				{ 
 					$CRS = $row["T_CRS"];
@@ -238,13 +241,14 @@
 				
 				// List
 				// create the query
-				$sql1 = "SELECT S_ID, S_NAME, S_IC, S_FPNT, S_EXAM FROM STUDENT WHERE S_ID = '$PINDA_ID' AND S_CRS = '$CRS' AND S_PLTN = '$PLTN' ORDER BY S_NAME";
+				$sql1 = "SELECT S_ID, S_NAME, S_IC, S_FPNT, S_EXAM FROM STUDENT WHERE S_ID = ? AND S_CRS = ? AND S_PLTN = ? ORDER BY S_NAME";
 			
 				// execute query
-				$result1 = mysqli_query($condb, $sql1) or die("SQL select statement failed");
+				$result1 = db_query($sql1, [$PINDA_ID, $CRS, $PLTN]) or die("SQL select statement failed");
 			
 				// Papar table
 				$row = mysqli_fetch_array($result1);
+				if (!$row) { echo '<script>window.alert("Rekod tidak dijumpai."); window.history.go(-1);</script>'; exit; }
 
 				// extract specific fields
 				$S_ID	= $row["S_ID"];
@@ -261,7 +265,7 @@
 				<!-- You only need this form and the form-register.css -->
 
 				<form class="form-register" method="post" action="pinda_markah.php">
-					<input type="hidden" name="ID2" value="<?php print($S_ID); ?>">
+					<input type="hidden" name="ID2" value="<?php print(e($S_ID)); ?>">
 					<input type="hidden" name="DAFTAR" value="YES">
 
 					<div class="form-register-with-email">
@@ -276,35 +280,35 @@
 							<div class="form-row"><!--No Matrik-->
 								<label>
 									<span >Nombor Matrik : </span>
-									<th><?php print($S_ID); ?></th>
+									<th><?php print(e($S_ID)); ?></th>
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Nama-->
 								<label>
 									<span >Nama :</span>
-									<th><?php print($S_NAME); ?></th>
+									<th><?php print(e($S_NAME)); ?></th>
 								</label>
 							</div>
 							
 							<div class="form-row"><!--IC-->
 								<label>
 									<span>Nombor K/P :</span>
-									<th><?php print($S_IC); ?></th>
+									<th><?php print(e($S_IC)); ?></th>
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Phone-->
 								<label>
 									<span>Markah Latihan Padang :</span>
-									<input type="text" name="S_FPNT" placeholder="0/20" value="<?php print($S_FPNT); ?>">
+									<input type="text" name="S_FPNT" placeholder="0/20" value="<?php print(e($S_FPNT)); ?>">
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Email-->
 								<label>
 									<span>Markah Peperiksaan Akhir :</span>
-									<input type="text" name="S_EXAM" placeholder="0/80" value="<?php print($S_EXAM); ?>">
+									<input type="text" name="S_EXAM" placeholder="0/80" value="<?php print(e($S_EXAM)); ?>">
 								</label>
 							</div>	
 

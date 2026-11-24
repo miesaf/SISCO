@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'] || ($_SESSION['priv_sisco'] == "TRNR"))
+		if(empty($_SESSION['login_sisco']) || ($_SESSION['priv_sisco'] == "TRNR"))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name	= $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 		
 		// Registering data into the database
 		if(isset($_POST['DAFTAR']))
@@ -24,10 +25,10 @@
 			$SA_TYPE	= $_POST['SA_TYPE'];
 			
 			//SQL query command
-			$sql="INSERT INTO ADMINISTRATOR(SA_ID, SA_PW, SA_NAME, SA_TYPE) VALUES ('$SA_ID', '$SA_PW', '$SA_NAME', '$SA_TYPE')";
+			$sql="INSERT INTO ADMINISTRATOR(SA_ID, SA_PW, SA_NAME, SA_TYPE) VALUES (?, ?, ?, ?)";
 			
 			// execute query
-			$exe_sql = mysqli_query($condb, $sql);
+			$exe_sql = db_query($sql, [$SA_ID, password_hash($SA_PW, PASSWORD_DEFAULT), $SA_NAME, $SA_TYPE]);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -53,6 +54,8 @@
 						</head>
 					</html>';
 			}
+			// the alert above redirects; the form below is not needed
+			exit;
 		}
 	?>
 
@@ -116,7 +119,7 @@
                 <li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
 					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); }
-					else if ($_SESSION['priv_sisco'] == "USER") { print ("Selamat Datang "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "USER") { print ("Selamat Datang "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">

@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'])
+		if(empty($_SESSION['login_sisco']))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name	= $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 		
 		// Registering data into the database
 		if(isset($_POST['DAFTAR']))
@@ -26,10 +27,10 @@
 			$ANN_ID			= SHA1(date("h:i:sa") . $ANN_AUTH . time() . $ANN_TITLE);
 			
 			//SQL query command
-			$sql="INSERT INTO ANNOUNCEMENTS(ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT) VALUES ('$ANN_ID', '$ANN_AUTH', '$ANN_TITLE', '$ANN_CONTENT')";
+			$sql="INSERT INTO ANNOUNCEMENTS(ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT) VALUES (?, ?, ?, ?)";
 			
 			// execute query
-			$exe_sql = mysqli_query($condb, $sql);
+			$exe_sql = db_query($sql, [$ANN_ID, $ANN_AUTH, $ANN_TITLE, $ANN_CONTENT]);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -56,6 +57,8 @@
 						</head>
 					</html>';
 			}
+			// the alert above redirects; the form below is not needed
+			exit;
 		}
 	?>
 	
@@ -121,7 +124,7 @@
                 <li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
 					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); }
-					else if ($_SESSION['priv_sisco'] == "USER") { print ("Selamat Datang "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "USER") { print ("Selamat Datang "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -234,15 +237,15 @@
 			<div class="main-content">
 				<?php
 					$SA_ID			= $_SESSION['ident_sisco'];
-					$sql_display 	= "SELECT SA_NAME FROM ADMINISTRATOR WHERE SA_ID = '$SA_ID'";
-					$result_dispay	= mysqli_query($condb, $sql_display);
+					$sql_display 	= "SELECT SA_NAME FROM ADMINISTRATOR WHERE SA_ID = ?";
+					$result_dispay	= db_query($sql_display, [$SA_ID]);
 					$row			= mysqli_fetch_array($result_dispay);
 					$SA_NAME		= $row["SA_NAME"];
 				?>
 				<!-- You only need this form and the form-register.css -->
 
 				<form class="form-register" method="post" action="tambah_makluman.php">
-					<input type="hidden" name="ANN_AUTH" value="<?php print($SA_NAME); ?>">
+					<input type="hidden" name="ANN_AUTH" value="<?php print(e($SA_NAME)); ?>">
 					<input type="hidden" name="DAFTAR" value="YES">
 
 					<div class="form-register-with-email">
@@ -271,7 +274,7 @@
 							<div class="form-row"><!--IC-->
 								<label>
 									<span>Oleh :</span>
-									<th><?php print($SA_NAME); ?></th>
+									<th><?php print(e($SA_NAME)); ?></th>
 								</label>
 							</div>
 

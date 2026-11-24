@@ -1,13 +1,13 @@
 <?php
 	session_start();
-	if(!$_SESSION['login_sisco'] || $_SESSION['priv_sisco'] != "ROOT")
+	if(empty($_SESSION['login_sisco']) || $_SESSION['priv_sisco'] != "ROOT")
 	{
 		header("Location: index.php?problem=notLoggedIn");
 		exit;
 	}
 	$name = $_SESSION['name_sisco'];
 	
-	include('connectDB.php');
+	require_once __DIR__ . '/connectDB.php';
 	
 	// check if the 'ID' variable is set in URL, and check that it is valid
 	if (isset($_GET['ID']))
@@ -16,7 +16,7 @@
 		$ID = $_GET['ID'];
 		
 		// delete the entry
-		$result = mysqli_query($condb, "DELETE FROM COURSE WHERE CR_ID = '$ID'")
+		$result = db_query("DELETE FROM COURSE WHERE CR_ID = ?", [$ID])
 		or die("SQL statement failed."); 
 		
 		// check for deletion

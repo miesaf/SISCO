@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'] || ($_SESSION['priv_sisco'] == "TRNR"))
+		if(empty($_SESSION['login_sisco']) || ($_SESSION['priv_sisco'] == "TRNR"))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name	= $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 		
 		// Registering data into the database
 		if(isset($_POST['DAFTAR']))
@@ -43,10 +44,10 @@
 			$S_ALGY		= $_POST['S_ALGY'];
 			
 			//SQL query command
-			$sql="INSERT INTO STUDENT(S_ID, S_NAME, S_IC, S_SEX, S_ADDR, S_TEL, S_MAIL, S_RLTV, S_RVNR, S_SIZE, S_RLGN, S_PROG, S_PART, S_CRS, S_PLTN, S_RSDN, S_BLOOD, S_HEALTH, S_ALGY) VALUES ('$S_ID', '$S_NAME', '$S_IC', '$S_SEX', '$S_ADDR', '$S_TEL', '$S_MAIL', '$S_RLTV', '$S_RVNR', '$S_SIZE', '$S_RLGN', '$S_PROG', '$S_PART', '$S_CRS', '$S_PLTN', '$S_RSDN', '$S_BLOOD', '$S_HEALTH', '$S_ALGY')";
+			$sql="INSERT INTO STUDENT(S_ID, S_NAME, S_IC, S_SEX, S_ADDR, S_TEL, S_MAIL, S_RLTV, S_RVNR, S_SIZE, S_RLGN, S_PROG, S_PART, S_CRS, S_PLTN, S_RSDN, S_BLOOD, S_HEALTH, S_ALGY) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			
 			// execute query
-			$exe_sql = mysqli_query($condb, $sql);
+			$exe_sql = db_query($sql, [$S_ID, $S_NAME, $S_IC, $S_SEX, $S_ADDR, $S_TEL, $S_MAIL, $S_RLTV, $S_RVNR, $S_SIZE, $S_RLGN, $S_PROG, $S_PART, $S_CRS, $S_PLTN, $S_RSDN, $S_BLOOD, $S_HEALTH, $S_ALGY]);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -73,6 +74,8 @@
 						</head>
 					</html>';
 			}
+			// the alert above redirects; the form below is not needed
+			exit;
 		}
 	?>
 	
@@ -138,7 +141,7 @@
                 <li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
 					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); }
-					else if ($_SESSION['priv_sisco'] == "USER") { print ("Selamat Datang "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "USER") { print ("Selamat Datang "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -369,12 +372,12 @@
 										<option> Sila pilih </option>
 											<?php
 											$sql_choose = "SELECT * FROM PROGRAM ORDER BY PR_ID";
-											$result_choose = mysqli_query($condb, $sql_choose);
+											$result_choose = db_query($sql_choose);
 											while ($row = mysqli_fetch_array($result_choose))
 											{
 												$PROG1 = $row["PR_ID"];
 												$PROG2 = $row["PR_NAME"];
-												echo '<option value="' . $PROG1 . '"> ' . $PROG1 . ' - ' . $PROG2 . '</option>';
+												echo '<option value="' . e($PROG1) . '"> ' . e($PROG1) . ' - ' . e($PROG2) . '</option>';
 											} ?>
 									</select>
 								</label>
@@ -404,12 +407,12 @@
 										<option> Sila pilih </option>
 											<?php
 											$sql_choose = "SELECT * FROM COURSE ORDER BY CR_ID";
-											$result_choose = mysqli_query($condb, $sql_choose);
+											$result_choose = db_query($sql_choose);
 											while ($row = mysqli_fetch_array($result_choose))
 											{
 												$CRS1 = $row["CR_ID"];
 												$CRS2 = $row["CR_NAME"];
-												echo '<option value="' . $CRS1 . '"> ' . $CRS1 . ' - ' . $CRS2 . '</option>';
+												echo '<option value="' . e($CRS1) . '"> ' . e($CRS1) . ' - ' . e($CRS2) . '</option>';
 											} ?>
 									</select>
 								</label>

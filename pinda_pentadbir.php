@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'] || ($_SESSION['priv_sisco'] != "ROOT"))
+		if(empty($_SESSION['login_sisco']) || ($_SESSION['priv_sisco'] != "ROOT"))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name = $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 		
 		// Registering data into the database
 		if(isset($_POST['DAFTAR']))
@@ -27,10 +28,20 @@
 			$SA_TYPE	= $_POST['SA_TYPE'];
 			
 			//SQL query command
-			$sql="UPDATE ADMINISTRATOR SET SA_ID = '$SA_ID', SA_PW = '$SA_PW', SA_NAME = '$SA_NAME', SA_TYPE = '$SA_TYPE' WHERE SA_ID = '$ID2'";
+			// An empty password field keeps the current password.
+			if ($SA_PW === "")
+			{
+				$sql="UPDATE ADMINISTRATOR SET SA_ID = ?, SA_NAME = ?, SA_TYPE = ? WHERE SA_ID = ?";
+				$params = [$SA_ID, $SA_NAME, $SA_TYPE, $ID2];
+			}
+			else
+			{
+				$sql="UPDATE ADMINISTRATOR SET SA_ID = ?, SA_PW = ?, SA_NAME = ?, SA_TYPE = ? WHERE SA_ID = ?";
+				$params = [$SA_ID, password_hash($SA_PW, PASSWORD_DEFAULT), $SA_NAME, $SA_TYPE, $ID2];
+			}
 			
 			// execute query
-			$exe_sql = mysqli_query($condb, $sql);
+			$exe_sql = db_query($sql, $params);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -57,6 +68,8 @@
 						</head>
 					</html>';
 			}
+			// the alert above redirects; the form below is not needed
+			exit;
 		}
 	?>
 	
@@ -117,7 +130,7 @@
             <ul class="nav navbar-top-links navbar-right">
                 <li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
-					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -231,17 +244,17 @@
 				$PINDA_ID	= $_GET['ID'];
 				// List
 				// create the query
-				$sql1 = "SELECT SA_ID, SA_PW, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_ID = '$PINDA_ID'";
+				$sql1 = "SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_ID = ?";
 			
 				// execute query
-				$result1 = mysqli_query($condb, $sql1) or die("SQL select statement failed");
+				$result1 = db_query($sql1, [$PINDA_ID]) or die("SQL select statement failed");
 			
 				// Papar table
 				$row = mysqli_fetch_array($result1);
+				if (!$row) { echo '<script>window.alert("Rekod tidak dijumpai."); window.history.go(-1);</script>'; exit; }
 
 				// extract specific fields
 				$SA_ID		= $row["SA_ID"];
-				$SA_PW		= $row["SA_PW"];
 				$SA_NAME	= $row["SA_NAME"];
 				$SA_TYPE	= $row["SA_TYPE"];
 					
@@ -253,7 +266,7 @@
 				<!-- You only need this form and the form-register.css -->
 
 				<form class="form-register" method="post" action="pinda_pentadbir.php">
-					<input type="hidden" name="ID2" value="<?php print($SA_ID); ?>">
+					<input type="hidden" name="ID2" value="<?php print(e($SA_ID)); ?>">
 					<input type="hidden" name="DAFTAR" value="YES">
 
 					<div class="form-register-with-email">
@@ -268,21 +281,21 @@
 							<div class="form-row"><!--No Matrik-->
 								<label>
 									<span >Nombor ID : </span>
-									<input type="text" name="SA_ID" value="<?php print($SA_ID); ?>">
+									<input type="text" name="SA_ID" value="<?php print(e($SA_ID)); ?>">
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Nama-->
 								<label>
 									<span >Kata Laluan :</span>
-									<input type="password" name="SA_PW" value="<?php print($SA_PW); ?>">
+									<input type="password" name="SA_PW" value="" placeholder="Biarkan kosong jika tidak berubah" autocomplete="new-password">
 								</label>
 							</div>
 							
 							<div class="form-row"><!--IC-->
 								<label>
 									<span>Nama :</span>
-									<input type="text" name="SA_NAME" value="<?php print($SA_NAME); ?>">
+									<input type="text" name="SA_NAME" value="<?php print(e($SA_NAME)); ?>">
 								</label>
 							</div>
 							
@@ -290,7 +303,7 @@
 								<label>
 									<span>Jenis Akaun :</span>
 									<select name="SA_TYPE">
-										<option value="<?php print($SA_TYPE); ?>"> <?php if($SA_TYPE == "ROOT"){ print("Pentadbir Sistem"); } else { print("Jurulatih"); } ?></option>
+										<option value="<?php print(e($SA_TYPE)); ?>"> <?php if($SA_TYPE == "ROOT"){ print("Pentadbir Sistem"); } else { print("Jurulatih"); } ?></option>
 										<option></option>
 										<option>Sila pilih</option>
 										<option value="ROOT">Pentadbir Sistem</option>

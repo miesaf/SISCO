@@ -1,19 +1,21 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'] || $_SESSION['priv_sisco'] != "ROOT")
+		if(empty($_SESSION['login_sisco']) || $_SESSION['priv_sisco'] != "ROOT")
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name = $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 		
 		if(isset($_POST['DAFTAR']))
 		{	
-			$COUNT		= $_POST['BIL'];
+			$COUNT		= (int) $_POST['BIL'];
+			$exe_sql	= false;
 			while($COUNT > 0)
 			{
 				// Variables from tadbir_course.php
@@ -22,10 +24,11 @@
 				$PROG		= $_POST['PROG' . $COUNT];
 			
 				//SQL query command
-				$sql="UPDATE COURSE SET CR_ID = '$ID_PROG', CR_NAME = '$PROG' WHERE CR_ID = '$IDA')";
+				$sql="UPDATE COURSE SET CR_ID = ?, CR_NAME = ? WHERE CR_ID = ?";
 			
 				// execute query
-				$exe_sql = mysqli_query($condb, $sql);
+				$exe_sql = db_query($sql, [$ID_PROG, $PROG, $IDA]);
+				$COUNT--;
 			}
 			
 			// confirming the record is added
@@ -52,6 +55,8 @@
 						</head>
 					</html>';
 			}
+			// the alert above redirects; the form below is not needed
+			exit;
 		}
 
 	?>
@@ -64,16 +69,16 @@
     <title>[SISCO] - Kursus (Perkakas Pembangun)</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="../JCIS/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../SISCO/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- MetisMenu CSS -->
-    <link href="../JCIS/bower_components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
+    <link href="../SISCO/bower_components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="../JCIS/dist/css/sb-admin-2.css" rel="stylesheet">
+    <link href="../SISCO/dist/css/sb-admin-2.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="../JCIS/bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="../SISCO/bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -121,7 +126,7 @@
             <ul class="nav navbar-top-links navbar-right">
 				<li class="dropdown">
 					<?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
-					else if ($_SESSION['priv_sisco'] == "KKOM") { print ("Ketua Kompeni "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "KKOM") { print ("Ketua Kompeni "); } ?><strong><?php print(e($name)); ?></strong>
 				</li>				
                 <li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -243,7 +248,7 @@
 								$sql = "SELECT * FROM COURSE ORDER BY CR_ID";
 								
 								// execute listing query
-								$result = mysqli_query($condb, $sql) or die("SQL select statement failed");
+								$result = db_query($sql) or die("SQL select statement failed");
 
 								// Papar table		
 								// iterate through all rows in result set
@@ -255,7 +260,7 @@
 									<tbody>
 										<tr>
 											<tr>
-												<td colspan="5" align="center" height="24" background="../JCIS/images/1_background_table.gif">
+												<td colspan="5" align="center" height="24" background="../SISCO/images/1_background_table.gif">
 													<div align="center">
 														<b>Senarai Course</b>
 													</div>
@@ -268,7 +273,7 @@
 													<td align="center"><b>ID Kursus</b></td>
 													<td align="center"><b>Kursus</b></td>
 								<?php
-								$BIL == 0;
+								$BIL = 0;
 								while ($row = mysqli_fetch_array($result))
 								{
 									$BIL++;
@@ -281,11 +286,11 @@
 									?>
 									<tr>
 										<td align=center>
-											<input type="hidden" name="IDA<?php print($BIL); ?>" value="<?php print($ID_PROG); ?>">
-											<input type="text" maxlength="6" size="4" name="ID_PROG<?php print($BIL); ?>" value="<?php print($ID_PROG); ?>">
+											<input type="hidden" name="IDA<?php print(e($BIL)); ?>" value="<?php print(e($ID_PROG)); ?>">
+											<input type="text" maxlength="6" size="4" name="ID_PROG<?php print(e($BIL)); ?>" value="<?php print(e($ID_PROG)); ?>">
 										</td>
 										<td align=left>
-											<input type="text" maxlength="50" size="50" name="PROG<?php print($BIL); ?>" value="<?php print($PROG); ?>">
+											<input type="text" maxlength="50" size="50" name="PROG<?php print(e($BIL)); ?>" value="<?php print(e($PROG)); ?>">
 										</td>
 									</tr>
 									<?php
@@ -303,7 +308,7 @@
 								?>
 													<tr>
 														<td align="center" colspan="2">
-															<input type="hidden" name="BIL" value="<?php print($BIL); ?>">
+															<input type="hidden" name="BIL" value="<?php print(e($BIL)); ?>">
 															<button type="submit" form="tambah_course" value="Submit">Pinda</button>
 														</td>
 													</tr>
@@ -332,16 +337,16 @@
     <!-- /#wrapper -->
 
     <!-- jQuery -->
-    <script src="../JCIS/bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../SISCO/bower_components/jquery/dist/jquery.min.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="../JCIS/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="../SISCO/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
     <!-- Metis Menu Plugin JavaScript -->
-    <script src="../JCIS/bower_components/metisMenu/dist/metisMenu.min.js"></script>
+    <script src="../SISCO/bower_components/metisMenu/dist/metisMenu.min.js"></script>
 
     <!-- Custom Theme JavaScript -->
-    <script src="../JCIS/dist/js/sb-admin-2.js"></script>
+    <script src="../SISCO/dist/js/sb-admin-2.js"></script>
 	
 	<script language="JavaScript">
 		function confirmDel(nums)

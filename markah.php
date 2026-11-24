@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'] || ($_SESSION['priv_sisco'] != "TRNR"))
+		if(empty($_SESSION['login_sisco']) || ($_SESSION['priv_sisco'] != "TRNR"))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name = $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 	?>
 	
     <meta charset="utf-8">
@@ -66,7 +67,7 @@
             <ul class="nav navbar-top-links navbar-right">
                 <li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
-					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -184,8 +185,8 @@
 			<?php
 				
 				$T_ID	= $_SESSION['ident_sisco'];
-				$sql_display = "SELECT T_CRS, T_PLTN FROM TRAINER WHERE T_ID = '$T_ID'";
-				$result_dispay = mysqli_query($condb, $sql_display);
+				$sql_display = "SELECT T_CRS, T_PLTN FROM TRAINER WHERE T_ID = ?";
+				$result_dispay = db_query($sql_display, [$T_ID]);
 				while($row = mysqli_fetch_array($result_dispay))
 				{ 
 					$CRS = $row["T_CRS"];
@@ -199,19 +200,19 @@
 				{
 					$CARI_ID	= $_GET['cari_id'];
 					// create the listing query
-					$sql = "SELECT S_ID, S_NAME, S_IC, S_FPNT, S_EXAM FROM STUDENT WHERE S_CRS = '$CRS' AND S_PLTN = '$PLTN' AND S_ID LIKE '%$CARI_ID%' UNION SELECT S_ID, S_NAME, S_IC, S_FPNT, S_EXAM FROM STUDENT WHERE S_CRS = '$CRS' AND S_PLTN = '$PLTN' AND S_NAME LIKE '%$CARI_ID%' UNION SELECT S_ID, S_NAME, S_IC, S_FPNT, S_EXAM FROM STUDENT WHERE S_CRS = '$CRS' AND S_PLTN = '$PLTN' AND S_IC LIKE '%$CARI_ID%' ORDER BY S_NAME";
+					$sql = "SELECT S_ID, S_NAME, S_IC, S_FPNT, S_EXAM FROM STUDENT WHERE S_CRS = ? AND S_PLTN = ? AND S_ID LIKE ? UNION SELECT S_ID, S_NAME, S_IC, S_FPNT, S_EXAM FROM STUDENT WHERE S_CRS = ? AND S_PLTN = ? AND S_NAME LIKE ? UNION SELECT S_ID, S_NAME, S_IC, S_FPNT, S_EXAM FROM STUDENT WHERE S_CRS = ? AND S_PLTN = ? AND S_IC LIKE ? ORDER BY S_NAME";
 					
 					// execute listing query
-					$result1 = mysqli_query($condb, $sql) or die("SQL select statement failed");
+					$result1 = db_query($sql, [$CRS, $PLTN, '%' . $CARI_ID . '%', $CRS, $PLTN, '%' . $CARI_ID . '%', $CRS, $PLTN, '%' . $CARI_ID . '%']) or die("SQL select statement failed");
 				}
 				else
 				{
 					// List
 					// create the query
-					$sql1 = "SELECT S_ID, S_NAME, S_IC, S_FPNT, S_EXAM FROM STUDENT WHERE S_CRS = '$CRS' AND S_PLTN = '$PLTN' ORDER BY S_NAME";
+					$sql1 = "SELECT S_ID, S_NAME, S_IC, S_FPNT, S_EXAM FROM STUDENT WHERE S_CRS = ? AND S_PLTN = ? ORDER BY S_NAME";
 				
 					// execute query
-					$result1 = mysqli_query($condb, $sql1) or die("SQL select statement failed");
+					$result1 = db_query($sql1, [$CRS, $PLTN]) or die("SQL select statement failed");
 				}
 				
 				// Papar table
@@ -239,6 +240,7 @@
                                     </thead>
                                     <tbody>
 										<?php
+											$BIL = 0;
 											while ($row = mysqli_fetch_array($result1))
 											{
 												$BIL++;
@@ -253,13 +255,13 @@
 												// output student information
 												?>
 												<tr>
-													<td><?php print($BIL); ?></td>
-													<td><?php print($S_ID); ?></td>
-													<td><?php print($S_NAME); ?></td>
-													<td><?php print($S_IC); ?></td>
-													<td><?php print($S_FPNT); ?></td>
-													<td><?php print($S_EXAM); ?></td>
-													<td><a target='_blank' href='pinda_markah.php?ID=<?php print($S_ID); ?>'><input type='button' value='Masuk/Pinda Markah' ></a></td>
+													<td><?php print(e($BIL)); ?></td>
+													<td><?php print(e($S_ID)); ?></td>
+													<td><?php print(e($S_NAME)); ?></td>
+													<td><?php print(e($S_IC)); ?></td>
+													<td><?php print(e($S_FPNT)); ?></td>
+													<td><?php print(e($S_EXAM)); ?></td>
+													<td><a target='_blank' href='pinda_markah.php?ID=<?php print(e($S_ID)); ?>'><input type='button' value='Masuk/Pinda Markah' ></a></td>
 												</tr>
 												<?php
 											}

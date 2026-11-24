@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'] || ($_SESSION['priv_sisco'] != "ROOT"))
+		if(empty($_SESSION['login_sisco']) || ($_SESSION['priv_sisco'] != "ROOT"))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name = $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 		
 		// Registering data into the database
 		if(isset($_POST['DAFTAR']))
@@ -27,10 +28,10 @@
 			$ANN_CONTENT	= $_POST['ANN_CONTENT'];
 			
 			//SQL query command
-			$sql="UPDATE ANNOUNCEMENTS SET ANN_AUTH = '$ANN_AUTH', ANN_TITLE = '$ANN_TITLE', ANN_CONTENT = '$ANN_CONTENT' WHERE ANN_ID = '$ID2'";
+			$sql="UPDATE ANNOUNCEMENTS SET ANN_AUTH = ?, ANN_TITLE = ?, ANN_CONTENT = ? WHERE ANN_ID = ?";
 			
 			// execute query
-			$exe_sql = mysqli_query($condb, $sql);
+			$exe_sql = db_query($sql, [$ANN_AUTH, $ANN_TITLE, $ANN_CONTENT, $ID2]);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -57,6 +58,8 @@
 						</head>
 					</html>';
 			}
+			// the alert above redirects; the form below is not needed
+			exit;
 		}
 	?>
 	
@@ -117,7 +120,7 @@
             <ul class="nav navbar-top-links navbar-right">
                 <li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
-					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -231,13 +234,14 @@
 				$PINDA_ID	= $_GET['ID'];
 				// List
 				// create the query
-				$sql1 = "SELECT * FROM ANNOUNCEMENTS WHERE ANN_ID = '$PINDA_ID'";
+				$sql1 = "SELECT * FROM ANNOUNCEMENTS WHERE ANN_ID = ?";
 			
 				// execute query
-				$result1 = mysqli_query($condb, $sql1) or die("SQL select statement failed");
+				$result1 = db_query($sql1, [$PINDA_ID]) or die("SQL select statement failed");
 			
 				// Papar table
 				$row = mysqli_fetch_array($result1);
+				if (!$row) { echo '<script>window.alert("Rekod tidak dijumpai."); window.history.go(-1);</script>'; exit; }
 
 				// extract specific fields
 				$ANN_ID			= $row["ANN_ID"];
@@ -253,7 +257,7 @@
 				<!-- You only need this form and the form-register.css -->
 
 				<form class="form-register" method="post" action="sunting_makluman.php">
-					<input type="hidden" name="ID2" value="<?php print($ANN_ID); ?>">
+					<input type="hidden" name="ID2" value="<?php print(e($ANN_ID)); ?>">
 					<input type="hidden" name="DAFTAR" value="YES">
 
 					<div class="form-register-with-email">
@@ -268,21 +272,21 @@
 							<div class="form-row"><!--No Matrik-->
 								<label>
 									<span >Tajuk : </span>
-									<input type="text" name="ANN_TITLE" value="<?php print($ANN_TITLE); ?>">
+									<input type="text" name="ANN_TITLE" value="<?php print(e($ANN_TITLE)); ?>">
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Nama-->
 								<label>
 									<span >Kandungan :</span>
-									<textarea name="ANN_CONTENT"><?php print($ANN_CONTENT); ?></textarea>
+									<textarea name="ANN_CONTENT"><?php print(e($ANN_CONTENT)); ?></textarea>
 								</label>
 							</div>
 							
 							<div class="form-row"><!--IC-->
 								<label>
 									<span>Oleh :</span>
-									<input type="text" name="ANN_AUTH" value="<?php print($ANN_AUTH); ?>">
+									<input type="text" name="ANN_AUTH" value="<?php print(e($ANN_AUTH)); ?>">
 								</label>
 							</div>
 							

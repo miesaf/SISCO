@@ -1,10 +1,13 @@
+<?php
+	session_start();
+	if(isset($_SESSION['login_sisco']))
+	{
+		header("Location: utama.php");
+		exit;
+	}
+?>
 <html>
 <head>
-	<?php
-		session_start();
-		if(isset($_SESSION['auth']))
-		{
-	?>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,20 +17,6 @@
     <title>[SISCO] - Daftar Masuk</title>
 	<link rel="shortcut icon" href="unitkor.ico">
 	
-	<?php			
-		if(isset($_SESSION['login_sisco']))
-		{
-			header("Location: utama.php");
-			exit;
-		}
-		
-		// Clear reset
-		include('connectDB.php');
-		//SQL query command
-		$sql="DELETE FROM J_RESET WHERE TARIKH < DATE_SUB(NOW(), INTERVAL 1 HOUR)";
-		// execute query
-		$res_sql = mysqli_query($condb, $sql);
-	?>
 
     <!-- Bootstrap Core CSS -->
     <link href="../SISCO/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -88,7 +77,7 @@
 		/* original error
 		if($problem != "")
 		{
-			print($errormsg);
+			print(e($errormsg));
 		}
 		*/
 	?>
@@ -152,15 +141,7 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="../SISCO/dist/js/sb-admin-2.js"></script>
-	
-	<?php
-		}
-		else
-		{
-			header("Location: /");
-			exit;
-		}
-	?>
+
 </body>
 
 </html>

@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'])
+		if(empty($_SESSION['login_sisco']))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name = $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 	?>
 	
     <meta charset="utf-8">
@@ -66,7 +67,7 @@
             <ul class="nav navbar-top-links navbar-right">
                 <li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
-					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -187,7 +188,7 @@
 				$sql1 = "SELECT * FROM COURSE ORDER BY CR_ID";
 				
 				// execute selection query
-				$result1 = mysqli_query($condb, $sql1) or die("SQL select statement failed");
+				$result1 = db_query($sql1) or die("SQL select statement failed");
 
 				echo '<center><table align="center"><tr><form id="papar" action="" method="get"><font size="3"><td align="right"><b><i>&nbsp;Pilih kursus kor :&nbsp;&nbsp;</i></b><select name="pilih"></font><option value=""> Semua </option>';
 				$BATCH_TEMP = 0;
@@ -196,7 +197,7 @@
 					$CR_ID 		= $row["CR_ID"];
 					$CR_NAME	= $row["CR_NAME"];
 					
-					echo '<option value="' . $CR_ID . '"> ' . $CR_NAME . ' </option>';
+					echo '<option value="' . e($CR_ID) . '"> ' . e($CR_NAME) . ' </option>';
 				}
 				echo '</select>&nbsp;<button type="submit" form="papar" value="Submit">Papar</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td></form>';
 				echo '<form id="cari" action="" method="get"><center><font size="3"><td align="right"><b><i>&nbsp;Cari pelajar kor :&nbsp;&nbsp;</i></b><input type="text" name="cari_id" maxlength="10" size="7" autofocus>&nbsp;<button type="submit" form="cari" value="Submit">Cari</button>&nbsp;</td></form></tr></table></center><br>';
@@ -206,10 +207,10 @@
 				{
 					$CARI_ID	= $_GET['cari_id'];
 					// create the listing query
-					$sql = "SELECT S_ID, S_NAME, S_CRS, S_PLTN FROM STUDENT WHERE S_ID LIKE '%$CARI_ID%' UNION SELECT S_ID, S_NAME, S_CRS, S_PART FROM STUDENT WHERE S_NAME LIKE '%$CARI_ID%' UNION SELECT S_ID, S_NAME, S_CRS, S_PART FROM STUDENT WHERE S_IC LIKE '%$CARI_ID%' ORDER BY S_CRS, S_PLTN, S_NAME";
+					$sql = "SELECT S_ID, S_NAME, S_CRS, S_PLTN FROM STUDENT WHERE S_ID LIKE ? UNION SELECT S_ID, S_NAME, S_CRS, S_PART FROM STUDENT WHERE S_NAME LIKE ? UNION SELECT S_ID, S_NAME, S_CRS, S_PART FROM STUDENT WHERE S_IC LIKE ? ORDER BY S_CRS, S_PLTN, S_NAME";
 					
 					// execute listing query
-					$result = mysqli_query($condb, $sql) or die("SQL select statement failed");
+					$result = db_query($sql, ['%' . $CARI_ID . '%', '%' . $CARI_ID . '%', '%' . $CARI_ID . '%']) or die("SQL select statement failed");
 				}
 				// Papar senarai
 				if (isset($_GET['pilih']))
@@ -217,16 +218,18 @@
 					if($_GET['pilih'] == "")
 					{
 						$TBATCH	= "";
+						$TPARAMS	= [];
 					}
 					else
 					{
-						$TBATCH	= "WHERE S_CRS = '" . $_GET['pilih'] . "'";
+						$TBATCH	= "WHERE S_CRS = ?";
+						$TPARAMS	= [$_GET['pilih']];
 					}
 					// create the listing query
 					$sql = "SELECT S_ID, S_NAME, S_CRS, S_PLTN FROM STUDENT $TBATCH ORDER BY S_CRS, S_PLTN, S_NAME";
 					
 					// execute listing query
-					$result = mysqli_query($condb, $sql) or die("SQL select statement failed");
+					$result = db_query($sql, $TPARAMS) or die("SQL select statement failed");
 				}
 				// Papar table
 				if (isset($_GET['cari_id']) || isset($_GET['pilih']))
@@ -252,6 +255,7 @@
                                     </thead>
                                     <tbody>
 										<?php
+											$BIL = 0;
 											while ($row = mysqli_fetch_array($result))
 											{
 												$BIL++;
@@ -262,17 +266,17 @@
 												$S_CRS	= $row["S_CRS"];
 												$S_PLTN	= $row["S_PLTN"];
 												
-												$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = '$S_CRS'";
-												$result_dispay = mysqli_query($condb, $sql_display);
+												$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = ?";
+												$result_dispay = db_query($sql_display, [$S_CRS]);
 												while($row = mysqli_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
 												
 												// output student information
 												?>
 												<tr>
-													<td><?php print($BIL); ?></td>
-													<td><a target='_blank' href='rincian_pelajar.php?ID=<?php print($S_ID); ?>'><?php print($S_NAME); ?></a></td>
-													<td><?php print($DCRS); ?></td>
-													<td><?php print($S_PLTN); ?></td>
+													<td><?php print(e($BIL)); ?></td>
+													<td><a target='_blank' href='rincian_pelajar.php?ID=<?php print(e($S_ID)); ?>'><?php print(e($S_NAME)); ?></a></td>
+													<td><?php print(e($DCRS)); ?></td>
+													<td><?php print(e($S_PLTN)); ?></td>
 												</tr>
 												<?php
 											}

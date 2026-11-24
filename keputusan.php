@@ -1,7 +1,8 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 		
 		// Registering data into the database
 		if(isset($_POST['DAFTAR']))
@@ -11,35 +12,33 @@
 			$S_IC	= null;
 			
 			// Variables from pendaftaran.php
-			$EN_ID		= $_POST['S_ID'];
-			$EN_IC		= $_POST['S_IC'];
+			$EN_ID		= (string) ($_POST['S_ID'] ?? '');
+			$EN_IC		= (string) ($_POST['S_IC'] ?? '');
 			
 			//SQL query command
-			$sql="SELECT S_IC FROM STUDENT WHERE S_ID = '$EN_ID'";
+			$sql="SELECT S_IC FROM STUDENT WHERE S_ID = ?";
 			
 			// execute query
-			$exe_sql = mysqli_query($condb, $sql);
+			$exe_sql = db_query($sql, [$EN_ID]);
 			
-			// confirming the record is added
-			while ($row = mysqli_fetch_array($exe_sql))
+			// a matric number that does not exist gets the same message as a wrong IC number
+			$row = mysqli_fetch_array($exe_sql);
+			if($row && hash_equals((string) $row["S_IC"], (string) $EN_IC))
 			{
-				if($EN_IC == $row["S_IC"])
-				{
-					$DISPLAY = true;
-					$DIS_ID = $EN_ID;
-				}
-				else
-				{
-					$DISPLAY = false;
-					echo '<html>
-							<head>
-								<script>
-									window.alert("Keputusan gagal dipaparkan!\nSila semak semula nombor matrik dan nombor kad pengenanlan anda");
-									window.history.go(-1);
-								</script>
-							</head>
-						</html>';
-				}
+				$DISPLAY = true;
+				$DIS_ID = $EN_ID;
+			}
+			else
+			{
+				$DISPLAY = false;
+				echo '<html>
+						<head>
+							<script>
+								window.alert("Keputusan gagal dipaparkan!\nSila semak semula nombor matrik dan nombor kad pengenanlan anda");
+								window.history.go(-1);
+							</script>
+						</head>
+					</html>';
 			}
 		}
 		else
@@ -173,10 +172,10 @@
 			if($DISPLAY == true)
 			{
 				//SQL query command
-				$sql="SELECT S_ID, S_NAME, S_IC, S_PROG, S_CRS, S_PLTN, S_FPNT, S_EXAM FROM STUDENT WHERE S_ID = '$EN_ID'";
+				$sql="SELECT S_ID, S_NAME, S_IC, S_PROG, S_CRS, S_PLTN, S_FPNT, S_EXAM FROM STUDENT WHERE S_ID = ?";
 				
 				// execute query
-				$exe_sql = mysqli_query($condb, $sql);
+				$exe_sql = db_query($sql, [$EN_ID]);
 				
 				// confirming the record is added
 				$row = mysqli_fetch_array($exe_sql);
@@ -191,12 +190,12 @@
 				$S_EXAM		= $row['S_EXAM'];
 				
 				// Decode codes into string
-				$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = '$S_CRS'";
-				$result_dispay = mysqli_query($condb, $sql_display);
+				$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = ?";
+				$result_dispay = db_query($sql_display, [$S_CRS]);
 				while($row = mysqli_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
 				
-				$sql_display = "SELECT PR_NAME FROM PROGRAM WHERE PR_ID = '$S_PROG'";
-				$result_dispay = mysqli_query($condb, $sql_display);
+				$sql_display = "SELECT PR_NAME FROM PROGRAM WHERE PR_ID = ?";
+				$result_dispay = db_query($sql_display, [$S_PROG]);
 				while($row = mysqli_fetch_array($result_dispay)) { $DPROG = $row["PR_NAME"]; }
 				?>
 			<div class="main-content">
@@ -213,56 +212,56 @@
 							<div class="form-row"><!--No Matrik-->
 								<label>
 									<span >Nombor Matrik :</span>
-									<?php print($S_ID); ?>
+									<?php print(e($S_ID)); ?>
 								</label>
 							</div>
 							
 							<div class="form-row"><!--IC-->
 								<label>
 									<span>Nama :</span>
-									<?php print($S_NAME); ?>
+									<?php print(e($S_NAME)); ?>
 								</label>
 							</div>
 							
 							<div class="form-row"><!--IC-->
 								<label>
 									<span>Nombor K/P :</span>
-									<?php print($S_IC); ?>
+									<?php print(e($S_IC)); ?>
 								</label>
 							</div>
 							
 							<div class="form-row"><!--IC-->
 								<label>
 									<span>Program :</span>
-									<?php print($S_PROG . " - " . $DPROG); ?>
+									<?php print(e($S_PROG . " - " . $DPROG)); ?>
 								</label>
 							</div>
 
 							<div class="form-row"><!--IC-->
 								<label>
 									<span>Kursus Kor :</span>
-									<?php print($S_CRS . " - " . $DCRS); ?>
+									<?php print(e($S_CRS . " - " . $DCRS)); ?>
 								</label>
 							</div>
 							
 							<div class="form-row"><!--IC-->
 								<label>
 									<span>Platun :</span>
-									<?php print($S_PLTN); ?>
+									<?php print(e($S_PLTN)); ?>
 								</label>
 							</div>
 							
 							<div class="form-row"><!--IC-->
 								<label>
 									<span>Markah Latihan Padang :</span>
-									<?php print($S_FPNT . "/20"); ?>
+									<?php print(e($S_FPNT . "/20")); ?>
 								</label>
 							</div>
 							
 							<div class="form-row"><!--IC-->
 								<label>
 									<span>Markah Peperiksaan Akhir :</span>
-									<?php print($S_EXAM . "/80"); ?>
+									<?php print(e($S_EXAM . "/80")); ?>
 								</label>
 							</div>
 						</div>
