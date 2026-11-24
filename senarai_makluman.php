@@ -192,7 +192,7 @@
 					$sql = "SELECT ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT FROM ANNOUNCEMENTS WHERE ANN_AUTH LIKE '%$CARI_ID%' UNION SELECT ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT FROM ANNOUNCEMENTS WHERE ANN_TITLE LIKE '%$CARI_ID%' UNION SELECT ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT FROM ANNOUNCEMENTS WHERE ANN_CONTENT LIKE '%$CARI_ID%' ORDER BY ANN_TIME";
 					
 					// execute listing query
-					$result1 = mysql_query($sql) or die("bSQL select statement failed");
+					$result1 = mysqli_query($condb, $sql) or die("bSQL select statement failed");
 				}
 				else
 				{
@@ -201,7 +201,7 @@
 					$sql1 = "SELECT ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT FROM ANNOUNCEMENTS ORDER BY ANN_TIME";
 				
 					// execute query
-					$result1 = mysql_query($sql1) or die("aSQL select statement failed");
+					$result1 = mysqli_query($condb, $sql1) or die("aSQL select statement failed");
 				}
 				
 				// Papar table
@@ -227,7 +227,7 @@
                                     </thead>
                                     <tbody>
 										<?php
-											while ($row = mysql_fetch_array($result1))
+											while ($row = mysqli_fetch_array($result1))
 											{
 												$BIL++;
 												

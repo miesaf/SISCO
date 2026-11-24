@@ -30,7 +30,7 @@
 			$sql="UPDATE ANNOUNCEMENTS SET ANN_AUTH = '$ANN_AUTH', ANN_TITLE = '$ANN_TITLE', ANN_CONTENT = '$ANN_CONTENT' WHERE ANN_ID = '$ID2'";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = mysqli_query($condb, $sql);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -47,7 +47,7 @@
 			}
 			else
 			{
-				echo "SQL insert statement failed.<br>" . mysql_error();
+				echo "SQL insert statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>
@@ -234,10 +234,10 @@
 				$sql1 = "SELECT * FROM ANNOUNCEMENTS WHERE ANN_ID = '$PINDA_ID'";
 			
 				// execute query
-				$result1 = mysql_query($sql1) or die("SQL select statement failed");
+				$result1 = mysqli_query($condb, $sql1) or die("SQL select statement failed");
 			
 				// Papar table
-				$row = mysql_fetch_array($result1);
+				$row = mysqli_fetch_array($result1);
 
 				// extract specific fields
 				$ANN_ID			= $row["ANN_ID"];

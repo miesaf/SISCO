@@ -28,7 +28,7 @@
 			$sql="UPDATE STUDENT SET S_FPNT = '$S_FPNT', S_EXAM = '$S_EXAM' WHERE S_ID = '$ID2'";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = mysqli_query($condb, $sql);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -45,7 +45,7 @@
 			}
 			else
 			{
-				echo "SQL insert statement failed.<br>" . mysql_error();
+				echo "SQL insert statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>
@@ -229,8 +229,8 @@
 				$PINDA_ID	= $_GET['ID'];
 				$T_ID	= $_SESSION['ident_sisco'];
 				$sql_display = "SELECT T_CRS, T_PLTN FROM TRAINER WHERE T_ID = '$T_ID'";
-				$result_dispay = mysql_query($sql_display);
-				while($row = mysql_fetch_array($result_dispay))
+				$result_dispay = mysqli_query($condb, $sql_display);
+				while($row = mysqli_fetch_array($result_dispay))
 				{ 
 					$CRS = $row["T_CRS"];
 					$PLTN = $row["T_PLTN"];
@@ -241,10 +241,10 @@
 				$sql1 = "SELECT S_ID, S_NAME, S_IC, S_FPNT, S_EXAM FROM STUDENT WHERE S_ID = '$PINDA_ID' AND S_CRS = '$CRS' AND S_PLTN = '$PLTN' ORDER BY S_NAME";
 			
 				// execute query
-				$result1 = mysql_query($sql1) or die("SQL select statement failed");
+				$result1 = mysqli_query($condb, $sql1) or die("SQL select statement failed");
 			
 				// Papar table
-				$row = mysql_fetch_array($result1);
+				$row = mysqli_fetch_array($result1);
 
 				// extract specific fields
 				$S_ID	= $row["S_ID"];

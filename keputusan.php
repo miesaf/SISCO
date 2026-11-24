@@ -18,10 +18,10 @@
 			$sql="SELECT S_IC FROM STUDENT WHERE S_ID = '$EN_ID'";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = mysqli_query($condb, $sql);
 			
 			// confirming the record is added
-			while ($row = mysql_fetch_array($exe_sql))
+			while ($row = mysqli_fetch_array($exe_sql))
 			{
 				if($EN_IC == $row["S_IC"])
 				{
@@ -176,10 +176,10 @@
 				$sql="SELECT S_ID, S_NAME, S_IC, S_PROG, S_CRS, S_PLTN, S_FPNT, S_EXAM FROM STUDENT WHERE S_ID = '$EN_ID'";
 				
 				// execute query
-				$exe_sql = mysql_query($sql);
+				$exe_sql = mysqli_query($condb, $sql);
 				
 				// confirming the record is added
-				$row = mysql_fetch_array($exe_sql);
+				$row = mysqli_fetch_array($exe_sql);
 				
 				$S_ID		= $row['S_ID'];
 				$S_NAME		= $row['S_NAME'];
@@ -192,12 +192,12 @@
 				
 				// Decode codes into string
 				$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = '$S_CRS'";
-				$result_dispay = mysql_query($sql_display);
-				while($row = mysql_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
+				$result_dispay = mysqli_query($condb, $sql_display);
+				while($row = mysqli_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
 				
 				$sql_display = "SELECT PR_NAME FROM PROGRAM WHERE PR_ID = '$S_PROG'";
-				$result_dispay = mysql_query($sql_display);
-				while($row = mysql_fetch_array($result_dispay)) { $DPROG = $row["PR_NAME"]; }
+				$result_dispay = mysqli_query($condb, $sql_display);
+				while($row = mysqli_fetch_array($result_dispay)) { $DPROG = $row["PR_NAME"]; }
 				?>
 			<div class="main-content">
 				<!-- You only need this form and the form-register.css -->

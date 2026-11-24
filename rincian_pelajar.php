@@ -227,10 +227,10 @@
 							$sql = "SELECT * FROM STUDENT WHERE S_ID = $ID";
 							
 							// execute query
-							$result = mysql_query($sql) or die("SQL select statement failed");
+							$result = mysqli_query($condb, $sql) or die("SQL select statement failed");
 							
 							// iterate through all rows in result set
-							if($row = mysql_fetch_array($result))
+							if($row = mysqli_fetch_array($result))
 							{
 								// extract specific fields
 								$S_ID		= $row['S_ID'];
@@ -257,12 +257,12 @@
 								
 								// Decode codes into string
 								$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = '$S_CRS'";
-								$result_dispay = mysql_query($sql_display);
-								while($row = mysql_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
+								$result_dispay = mysqli_query($condb, $sql_display);
+								while($row = mysqli_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
 								
 								$sql_display = "SELECT PR_NAME FROM PROGRAM WHERE PR_ID = '$S_PROG'";
-								$result_dispay = mysql_query($sql_display);
-								while($row = mysql_fetch_array($result_dispay)) { $DPROG = $row["PR_NAME"]; }
+								$result_dispay = mysqli_query($condb, $sql_display);
+								while($row = mysqli_fetch_array($result_dispay)) { $DPROG = $row["PR_NAME"]; }
 						?>
                         <div class="panel-body">
 							

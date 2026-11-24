@@ -27,7 +27,7 @@
 			$sql="INSERT INTO ADMINISTRATOR(SA_ID, SA_PW, SA_NAME, SA_TYPE) VALUES ('$SA_ID', '$SA_PW', '$SA_NAME', '$SA_TYPE')";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = mysqli_query($condb, $sql);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -43,7 +43,7 @@
 			}
 			else
 			{
-				echo "SQL insert statement failed.<br>" . mysql_error();
+				echo "SQL insert statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>

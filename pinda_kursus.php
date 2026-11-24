@@ -25,7 +25,7 @@
 				$sql="UPDATE COURSE SET CR_ID = '$ID_PROG', CR_NAME = '$PROG' WHERE CR_ID = '$IDA')";
 			
 				// execute query
-				$exe_sql = mysql_query($sql);
+				$exe_sql = mysqli_query($condb, $sql);
 			}
 			
 			// confirming the record is added
@@ -42,7 +42,7 @@
 			}
 			else
 			{
-				echo "SQL insert statement failed.<br>" . mysql_error();
+				echo "SQL insert statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>
@@ -243,7 +243,7 @@
 								$sql = "SELECT * FROM COURSE ORDER BY CR_ID";
 								
 								// execute listing query
-								$result = mysql_query($sql) or die("SQL select statement failed");
+								$result = mysqli_query($condb, $sql) or die("SQL select statement failed");
 
 								// Papar table		
 								// iterate through all rows in result set
@@ -269,7 +269,7 @@
 													<td align="center"><b>Kursus</b></td>
 								<?php
 								$BIL == 0;
-								while ($row = mysql_fetch_array($result))
+								while ($row = mysqli_fetch_array($result))
 								{
 									$BIL++;
 									

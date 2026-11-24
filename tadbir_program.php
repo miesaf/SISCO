@@ -21,7 +21,7 @@
 			$sql="INSERT INTO PROGRAM (PR_ID, PR_NAME) VALUES ('$ID_PROG', '$PROG')";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = mysqli_query($condb, $sql);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -37,7 +37,7 @@
 			}
 			else
 			{
-				echo "SQL insert statement failed.<br>" . mysql_error();
+				echo "SQL insert statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>
@@ -247,7 +247,7 @@
 							$sql = "SELECT * FROM PROGRAM ORDER BY PR_ID";
 							
 							// execute listing query
-							$result = mysql_query($sql) or die("SQL select statement failed");
+							$result = mysqli_query($condb, $sql) or die("SQL select statement failed");
 
 							// Papar table		
 							// iterate through all rows in result set
@@ -267,7 +267,7 @@
 									<td align="center"><b>ID Kampus</b></td><tr>';
 
 							$BIL == 0;
-							while ($row = mysql_fetch_array($result))
+							while ($row = mysqli_fetch_array($result))
 							{
 								$BIL++;
 								

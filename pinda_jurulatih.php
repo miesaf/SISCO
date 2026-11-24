@@ -38,7 +38,7 @@
 			$sql="UPDATE TRAINER SET T_ID = '$T_ID', T_NAME = '$T_NAME', T_IC = '$T_IC', T_SEX = '$T_SEX', T_ADDR = '$T_ADDR', T_TEL = '$T_TEL', T_MAIL = '$T_MAIL', T_BANK = '$T_BANK', T_CRS = '$T_CRS', T_PLTN = '$T_PLTN', T_EXP = '$T_EXP' WHERE T_ID = '$ID2'";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = mysqli_query($condb, $sql);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -55,7 +55,7 @@
 			}
 			else
 			{
-				echo "SQL update statement failed.<br>" . mysql_error();
+				echo "SQL update statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>
@@ -250,10 +250,10 @@
 					$sql = "SELECT * FROM TRAINER WHERE T_ID = $ID";
 					
 					// execute query
-					$result = mysql_query($sql) or die("SQL select statement failed");
+					$result = mysqli_query($condb, $sql) or die("SQL select statement failed");
 					
 					// iterate through all rows in result set
-					$row = mysql_fetch_array($result);
+					$row = mysqli_fetch_array($result);
 					
 					// extract specific fields
 					$T_ID		= $row['T_ID'];
@@ -270,8 +270,8 @@
 					
 					// Decode codes into string
 					$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = '$T_CRS'";
-					$result_dispay = mysql_query($sql_display);
-					while($row = mysql_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
+					$result_dispay = mysqli_query($condb, $sql_display);
+					while($row = mysqli_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
 				?>
 
 				<form class="form-register" method="post" action="pinda_jurulatih.php">
@@ -362,8 +362,8 @@
 										<option> Sila pilih </option>
 											<?php
 											$sql_choose = "SELECT * FROM COURSE ORDER BY CR_ID";
-											$result_choose = mysql_query($sql_choose);
-											while ($row = mysql_fetch_array($result_choose))
+											$result_choose = mysqli_query($condb, $sql_choose);
+											while ($row = mysqli_fetch_array($result_choose))
 											{
 												$CRS1 = $row["CR_ID"];
 												$CRS2 = $row["CR_NAME"];

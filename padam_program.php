@@ -16,8 +16,8 @@
 		$ID = $_GET['ID'];
 		
 		// delete the entry
-		$result = mysql_query("DELETE FROM PROGRAM WHERE PR_ID = '$ID'")
-		or die(mysql_error()); 
+		$result = mysqli_query($condb, "DELETE FROM PROGRAM WHERE PR_ID = '$ID'")
+		or die("SQL statement failed."); 
 		
 		// check for deletion
 		if ($result)
@@ -33,7 +33,7 @@
 		}
 		else
 		{
-			echo "SQL insert statement failed.<br>" . mysql_error();
+			echo "SQL insert statement failed.<br>";
 			echo '<html>
 					<head>
 						<script>

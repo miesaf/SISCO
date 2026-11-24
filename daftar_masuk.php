@@ -26,7 +26,7 @@
 		//SQL query command
 		$sql="DELETE FROM J_RESET WHERE TARIKH < DATE_SUB(NOW(), INTERVAL 1 HOUR)";
 		// execute query
-		$res_sql = mysql_query($sql);
+		$res_sql = mysqli_query($condb, $sql);
 	?>
 
     <!-- Bootstrap Core CSS -->

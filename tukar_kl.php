@@ -49,7 +49,7 @@
 				$sql="UPDATE ADMINISTRATOR SET SA_PW = '$PAS1' WHERE SA_ID = '$SET_ID'";
 				
 				// execute query
-				$exe_sql = mysql_query($sql);
+				$exe_sql = mysqli_query($condb, $sql);
 				
 				// confirming the record is added
 				if ($exe_sql)
@@ -65,7 +65,7 @@
 				}
 				else
 				{
-					echo "SQL statement failed.<br>" . mysql_error();
+					echo "SQL statement failed.<br>";
 					echo '<html>
 							<head>
 								<script>

@@ -36,13 +36,13 @@
 			$sql="INSERT INTO TRAINER(T_ID, T_NAME, T_IC, T_SEX, T_ADDR, T_TEL, T_MAIL, T_BANK, T_CRS, T_PLTN, T_EXP) VALUES ('$T_ID', '$T_NAME', '$T_IC', '$T_SEX', '$T_ADDR', '$T_TEL', '$T_MAIL', '$T_BANK', '$T_CRS', '$T_PLTN', '$T_EXP')";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = mysqli_query($condb, $sql);
 			
 			//SQL query command
 			$sql2="INSERT INTO ADMINISTRATOR(SA_ID, SA_PW, SA_NAME, SA_TYPE) VALUES ('$T_ID', '$T_IC', '$T_NAME', 'TRNR')";
 			
 			// execute query
-			$exe_sql2 = mysql_query($sql2);
+			$exe_sql2 = mysqli_query($condb, $sql2);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -58,7 +58,7 @@
 			}
 			else
 			{
-				echo "SQL insert statement failed.<br>" . mysql_error();
+				echo "SQL insert statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>
@@ -325,8 +325,8 @@
 											<option> Sila pilih </option>
 											<?php
 											$sql_choose = "SELECT * FROM COURSE ORDER BY CR_ID";
-											$result_choose = mysql_query($sql_choose);
-											while ($row = mysql_fetch_array($result_choose))
+											$result_choose = mysqli_query($condb, $sql_choose);
+											while ($row = mysqli_fetch_array($result_choose))
 											{
 												$CRS1 = $row["CR_ID"];
 												$CRS2 = $row["CR_NAME"];

@@ -190,11 +190,11 @@
 				$sql1 = "SELECT * FROM COURSE ORDER BY CR_ID";
 				
 				// execute selection query
-				$result1 = mysql_query($sql1) or die("SQL select statement failed");
+				$result1 = mysqli_query($condb, $sql1) or die("SQL select statement failed");
 
 				echo '<center><table align="center"><tr><form id="papar" action="" method="get"><font size="3"><td align="right"><b><i>&nbsp;Pilih kursus kor :&nbsp;&nbsp;</i></b><select name="pilih"></font><option value=""> Semua </option>';
 				$BATCH_TEMP = 0;
-				while ($row = mysql_fetch_array($result1))
+				while ($row = mysqli_fetch_array($result1))
 				{
 					$CR_ID 		= $row["CR_ID"];
 					$CR_NAME	= $row["CR_NAME"];
@@ -212,7 +212,7 @@
 					$sql = "SELECT T_ID, T_NAME, T_CRS, T_PLTN FROM TRAINER WHERE T_ID LIKE '%$CARI_ID%' UNION SELECT T_ID, T_NAME, T_CRS, T_PLTN FROM TRAINER WHERE T_NAME LIKE '%$CARI_ID%' UNION SELECT T_ID, T_NAME, T_CRS, T_PLTN FROM TRAINER WHERE T_IC LIKE '%$CARI_ID%' ORDER BY T_CRS, T_PLTN, T_NAME";
 					
 					// execute listing query
-					$result = mysql_query($sql) or die("SQL select statement failed");
+					$result = mysqli_query($condb, $sql) or die("SQL select statement failed");
 				}
 				// Papar senarai
 				if (isset($_GET['pilih']))
@@ -229,7 +229,7 @@
 					$sql = "SELECT T_ID, T_NAME, T_CRS, T_PLTN FROM TRAINER $TBATCH ORDER BY T_CRS, T_PLTN, T_NAME";
 					
 					// execute listing query
-					$result = mysql_query($sql) or die("SQL select statement failed");
+					$result = mysqli_query($condb, $sql) or die("SQL select statement failed");
 				}
 				// Papar table
 				if (isset($_GET['cari_id']) || isset($_GET['pilih']))
@@ -255,7 +255,7 @@
                                     </thead>
                                     <tbody>
 										<?php
-											while ($row = mysql_fetch_array($result))
+											while ($row = mysqli_fetch_array($result))
 											{
 												$BIL++;
 												
@@ -266,8 +266,8 @@
 												$S_PLTN	= $row["T_PLTN"];
 												
 												$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = '$S_CRS'";
-												$result_dispay = mysql_query($sql_display);
-												while($row = mysql_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
+												$result_dispay = mysqli_query($condb, $sql_display);
+												while($row = mysqli_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
 												
 												// output student information
 												?>

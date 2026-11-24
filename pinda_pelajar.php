@@ -52,7 +52,7 @@
 			$sql="UPDATE STUDENT SET S_ID = '$S_ID', S_NAME = '$S_NAME', S_IC = '$S_IC', S_SEX = '$S_SEX', S_ADDR = '$S_ADDR', S_TEL = '$S_TEL', S_MAIL = '$S_MAIL', S_RLTV = '$S_RLTV', S_RVNR = '$S_RVNR', S_SIZE = '$S_SIZE', S_RLGN = '$S_RLGN', S_PROG = '$S_PROG', S_PART = '$S_PART', S_CRS = '$S_CRS', S_PLTN = '$S_PLTN', S_RSDN = '$S_RSDN', S_BLOOD = '$S_BLOOD', S_HEALTH = '$S_HEALTH', S_ALGY = '$S_ALGY', S_FPNT = '$S_FPNT', S_EXAM = '$S_EXAM' WHERE S_ID = '$ID2'";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = mysqli_query($condb, $sql);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -69,7 +69,7 @@
 			}
 			else
 			{
-				echo "SQL insert statement failed.<br>" . mysql_error();
+				echo "SQL insert statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>
@@ -264,10 +264,10 @@
 					$sql = "SELECT * FROM STUDENT WHERE S_ID = $ID";
 					
 					// execute query
-					$result = mysql_query($sql) or die("SQL select statement failed");
+					$result = mysqli_query($condb, $sql) or die("SQL select statement failed");
 					
 					// iterate through all rows in result set
-					$row = mysql_fetch_array($result);
+					$row = mysqli_fetch_array($result);
 					
 					// extract specific fields
 					$S_ID		= $row['S_ID'];
@@ -294,12 +294,12 @@
 					
 					// Decode codes into string
 					$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = '$S_CRS'";
-					$result_dispay = mysql_query($sql_display);
-					while($row = mysql_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
+					$result_dispay = mysqli_query($condb, $sql_display);
+					while($row = mysqli_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
 					
 					$sql_display = "SELECT PR_NAME FROM PROGRAM WHERE PR_ID = '$S_PROG'";
-					$result_dispay = mysql_query($sql_display);
-					while($row = mysql_fetch_array($result_dispay)) { $DPROG = $row["PR_NAME"]; }
+					$result_dispay = mysqli_query($condb, $sql_display);
+					while($row = mysqli_fetch_array($result_dispay)) { $DPROG = $row["PR_NAME"]; }
 				?>
 
 				<form class="form-register" method="post" action="pinda_pelajar.php">
@@ -426,8 +426,8 @@
 										<option> Sila pilih </option>
 											<?php
 											$sql_choose = "SELECT * FROM PROGRAM ORDER BY PR_ID";
-											$result_choose = mysql_query($sql_choose);
-											while ($row = mysql_fetch_array($result_choose))
+											$result_choose = mysqli_query($condb, $sql_choose);
+											while ($row = mysqli_fetch_array($result_choose))
 											{
 												$PROG1 = $row["PR_ID"];
 												$PROG2 = $row["PR_NAME"];
@@ -465,8 +465,8 @@
 										<option> Sila pilih </option>
 											<?php
 											$sql_choose = "SELECT * FROM COURSE ORDER BY CR_ID";
-											$result_choose = mysql_query($sql_choose);
-											while ($row = mysql_fetch_array($result_choose))
+											$result_choose = mysqli_query($condb, $sql_choose);
+											while ($row = mysqli_fetch_array($result_choose))
 											{
 												$CRS1 = $row["CR_ID"];
 												$CRS2 = $row["CR_NAME"];

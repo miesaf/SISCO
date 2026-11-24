@@ -28,7 +28,7 @@
 			$sql="INSERT INTO STUDENT(S_NAME, S_ID, S_FPNT, S_EXAM) VALUES ('$S_NAME', '$S_ID', $S_FPNT', '$S_EXAM')";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = mysqli_query($condb, $sql);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -45,7 +45,7 @@
 			}
 			else
 			{
-				echo "SQL insert statement failed.<br>" . mysql_error();
+				echo "SQL insert statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>
@@ -234,8 +234,8 @@
 				<?php
 					$S_ID			= $_SESSION['ident_sisco'];
 					$sql_display 	= "SELECT S_NAME FROM STUDENT WHERE S_ID = '$S_ID'";
-					$result_dispay	= mysql_query($sql_display);
-					$row			= mysql_fetch_array($result_dispay);
+					$result_dispay	= mysqli_query($condb, $sql_display);
+					$row			= mysqli_fetch_array($result_dispay);
 					$S_NAME			= $row["S_NAME"];
 					
 					

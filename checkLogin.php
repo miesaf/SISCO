@@ -8,10 +8,10 @@
 	
 	//SQL query command
 	$sql="SELECT * FROM ADMINISTRATOR";
-	$res_sql = mysql_query($sql) or die("SQL select statement failed");
+	$res_sql = mysqli_query($condb, $sql) or die("SQL select statement failed");
 	// execute query
 	
-	while ($row = mysql_fetch_array($res_sql))
+	while ($row = mysqli_fetch_array($res_sql))
 	{
 		// extract specific fields
 		$NO_MATRIK	= $row["SA_ID"];

@@ -192,7 +192,7 @@
 					$sql = "SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_ID LIKE '%$CARI_ID%' UNION SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_NAME LIKE '%$CARI_ID%' UNION SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_TYPE LIKE '%$CARI_ID%' ORDER BY SA_TYPE, SA_NAME";
 					
 					// execute listing query
-					$result1 = mysql_query($sql) or die("SQL select statement failed");
+					$result1 = mysqli_query($condb, $sql) or die("SQL select statement failed");
 				}
 				else
 				{
@@ -201,7 +201,7 @@
 					$sql1 = "SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR ORDER BY SA_TYPE, SA_NAME";
 				
 					// execute query
-					$result1 = mysql_query($sql1) or die("SQL select statement failed");
+					$result1 = mysqli_query($condb, $sql1) or die("SQL select statement failed");
 				}
 				
 				// Papar table
@@ -227,7 +227,7 @@
                                     </thead>
                                     <tbody>
 										<?php
-											while ($row = mysql_fetch_array($result1))
+											while ($row = mysqli_fetch_array($result1))
 											{
 												$BIL++;
 												

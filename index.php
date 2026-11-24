@@ -125,13 +125,13 @@
 									<?php
 									
 										
-										//connect to MySQL database server
+										//connect to MySQLi database server
 										include('connectDB.php');
 
 										$query = "SELECT * FROM ANNOUNCEMENTS ORDER BY ANN_TIME"; 
-										$result = mysql_query($query) or die(mysql_error());
+										$result = mysqli_query($condb, $query) or die("SQL statement failed.");
 
-										while($row = mysql_fetch_array($result))
+										while($row = mysqli_fetch_array($result))
 										{
 											?>
 											<div class="panel panel-default">

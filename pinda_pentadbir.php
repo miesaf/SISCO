@@ -30,7 +30,7 @@
 			$sql="UPDATE ADMINISTRATOR SET SA_ID = '$SA_ID', SA_PW = '$SA_PW', SA_NAME = '$SA_NAME', SA_TYPE = '$SA_TYPE' WHERE SA_ID = '$ID2'";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = mysqli_query($condb, $sql);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -47,7 +47,7 @@
 			}
 			else
 			{
-				echo "SQL insert statement failed.<br>" . mysql_error();
+				echo "SQL insert statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>
@@ -234,10 +234,10 @@
 				$sql1 = "SELECT SA_ID, SA_PW, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_ID = '$PINDA_ID'";
 			
 				// execute query
-				$result1 = mysql_query($sql1) or die("SQL select statement failed");
+				$result1 = mysqli_query($condb, $sql1) or die("SQL select statement failed");
 			
 				// Papar table
-				$row = mysql_fetch_array($result1);
+				$row = mysqli_fetch_array($result1);
 
 				// extract specific fields
 				$SA_ID		= $row["SA_ID"];

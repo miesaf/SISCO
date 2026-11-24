@@ -46,7 +46,7 @@
 			$sql="INSERT INTO STUDENT(S_ID, S_NAME, S_IC, S_SEX, S_ADDR, S_TEL, S_MAIL, S_RLTV, S_RVNR, S_SIZE, S_RLGN, S_PROG, S_PART, S_CRS, S_PLTN, S_RSDN, S_BLOOD, S_HEALTH, S_ALGY) VALUES ('$S_ID', '$S_NAME', '$S_IC', '$S_SEX', '$S_ADDR', '$S_TEL', '$S_MAIL', '$S_RLTV', '$S_RVNR', '$S_SIZE', '$S_RLGN', '$S_PROG', '$S_PART', '$S_CRS', '$S_PLTN', '$S_RSDN', '$S_BLOOD', '$S_HEALTH', '$S_ALGY')";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = mysqli_query($condb, $sql);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -63,7 +63,7 @@
 			}
 			else
 			{
-				echo "SQL insert statement failed.<br>" . mysql_error();
+				echo "SQL insert statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>
@@ -369,8 +369,8 @@
 										<option> Sila pilih </option>
 											<?php
 											$sql_choose = "SELECT * FROM PROGRAM ORDER BY PR_ID";
-											$result_choose = mysql_query($sql_choose);
-											while ($row = mysql_fetch_array($result_choose))
+											$result_choose = mysqli_query($condb, $sql_choose);
+											while ($row = mysqli_fetch_array($result_choose))
 											{
 												$PROG1 = $row["PR_ID"];
 												$PROG2 = $row["PR_NAME"];
@@ -404,8 +404,8 @@
 										<option> Sila pilih </option>
 											<?php
 											$sql_choose = "SELECT * FROM COURSE ORDER BY CR_ID";
-											$result_choose = mysql_query($sql_choose);
-											while ($row = mysql_fetch_array($result_choose))
+											$result_choose = mysqli_query($condb, $sql_choose);
+											while ($row = mysqli_fetch_array($result_choose))
 											{
 												$CRS1 = $row["CR_ID"];
 												$CRS2 = $row["CR_NAME"];

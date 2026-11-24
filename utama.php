@@ -229,10 +229,10 @@
 										$sql = "SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_ID = $ID";
 										
 										// execute query
-										$result = mysql_query($sql) or die("SQL select statement failed");
+										$result = mysqli_query($condb, $sql) or die("SQL select statement failed");
 										
 										// iterate through all rows in result set
-										$row = mysql_fetch_array($result);
+										$row = mysqli_fetch_array($result);
 									
 										// extract specific fields
 										$NO_MATRIK	= $row["SA_ID"];

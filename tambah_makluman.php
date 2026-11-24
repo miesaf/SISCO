@@ -29,7 +29,7 @@
 			$sql="INSERT INTO ANNOUNCEMENTS(ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT) VALUES ('$ANN_ID', '$ANN_AUTH', '$ANN_TITLE', '$ANN_CONTENT')";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = mysqli_query($condb, $sql);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -46,7 +46,7 @@
 			}
 			else
 			{
-				echo "SQL insert statement failed.<br>" . mysql_error();
+				echo "SQL insert statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>
@@ -235,8 +235,8 @@
 				<?php
 					$SA_ID			= $_SESSION['ident_sisco'];
 					$sql_display 	= "SELECT SA_NAME FROM ADMINISTRATOR WHERE SA_ID = '$SA_ID'";
-					$result_dispay	= mysql_query($sql_display);
-					$row			= mysql_fetch_array($result_dispay);
+					$result_dispay	= mysqli_query($condb, $sql_display);
+					$row			= mysqli_fetch_array($result_dispay);
 					$SA_NAME		= $row["SA_NAME"];
 				?>
 				<!-- You only need this form and the form-register.css -->
