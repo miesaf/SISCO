@@ -1,3 +1,4 @@
+<?php ob_start(); ?>
 <script type="text/javascript">
 	var _gaq = _gaq || [];
 	_gaq.push(['_setAccount', 'UA-28892771-1']);
@@ -20,7 +21,7 @@
 	<link rel="shortcut icon" href="unitkor.ico">
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'])
+		if(empty($_SESSION['login_sisco']))
 		{
 			header("Location: index.php?problem=notLoggedIn");
 			exit;
@@ -35,7 +36,7 @@
 	<br>
 	<div align="center">
 	<?php
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 		if(isset($_POST['telah']))
 		{
 			// Variables from
@@ -46,10 +47,10 @@
 			if($PAS1 == $PAS2)
 			{
 				//SQL query command
-				$sql="UPDATE ADMINISTRATOR SET SA_PW = '$PAS1' WHERE SA_ID = '$SET_ID'";
+				$sql="UPDATE ADMINISTRATOR SET SA_PW = ? WHERE SA_ID = ?";
 				
 				// execute query
-				$exe_sql = mysql_query($sql);
+				$exe_sql = db_query($sql, [password_hash($PAS1, PASSWORD_DEFAULT), $SET_ID]);
 				
 				// confirming the record is added
 				if ($exe_sql)
@@ -65,7 +66,7 @@
 				}
 				else
 				{
-					echo "SQL statement failed.<br>" . mysql_error();
+					echo "SQL statement failed.<br>";
 					echo '<html>
 							<head>
 								<script>

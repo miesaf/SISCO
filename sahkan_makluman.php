@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 	<body>
 		<?php
 			session_start();
-			if((!$_SESSION['login_sisco']) || ($_SESSION['priv_sisco'] != "ROOT"))
+			if((empty($_SESSION['login_sisco'])) || ($_SESSION['priv_sisco'] != "ROOT"))
 			{
 				header("Location: daftar_masuk.php?problem=notLoggedIn");
 				exit;
 			}
 			$name = $_SESSION['name_sisco'];
 			
-			include('connectDB.php');
+			require_once __DIR__ . '/connectDB.php';
 			
 			// check if the 'ID' variable is set in URL, and check that it is valid
 			if (isset($_GET['ID']))
@@ -21,7 +22,7 @@
 						var del = confirm("Adakah anda pasti untuk memadam makluman ini?");
 						if (del == true)
 						{
-							window.location.assign("padam_makluman.php?ID=<?php print($ID); ?>");
+							window.location.assign("padam_makluman.php?ID=<?php print(e($ID)); ?>");
 						} else 
 						{
 							alert("Makluman tidak di padam.");

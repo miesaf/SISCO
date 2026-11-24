@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'])
+		if(empty($_SESSION['login_sisco']))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name = $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 	?>
 	
     <meta charset="utf-8">
@@ -66,7 +67,7 @@
             <ul class="nav navbar-top-links navbar-right">
                 <li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
-					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -189,10 +190,10 @@
 				{
 					$CARI_ID	= $_GET['cari_id'];
 					// create the listing query
-					$sql = "SELECT ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT FROM ANNOUNCEMENTS WHERE ANN_AUTH LIKE '%$CARI_ID%' UNION SELECT ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT FROM ANNOUNCEMENTS WHERE ANN_TITLE LIKE '%$CARI_ID%' UNION SELECT ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT FROM ANNOUNCEMENTS WHERE ANN_CONTENT LIKE '%$CARI_ID%' ORDER BY ANN_TIME";
+					$sql = "SELECT ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT FROM ANNOUNCEMENTS WHERE ANN_AUTH LIKE ? UNION SELECT ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT FROM ANNOUNCEMENTS WHERE ANN_TITLE LIKE ? UNION SELECT ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT FROM ANNOUNCEMENTS WHERE ANN_CONTENT LIKE ? ORDER BY ANN_TIME";
 					
 					// execute listing query
-					$result1 = mysql_query($sql) or die("bSQL select statement failed");
+					$result1 = db_query($sql, ['%' . $CARI_ID . '%', '%' . $CARI_ID . '%', '%' . $CARI_ID . '%']) or die("bSQL select statement failed");
 				}
 				else
 				{
@@ -201,7 +202,7 @@
 					$sql1 = "SELECT ANN_ID, ANN_AUTH, ANN_TITLE, ANN_CONTENT FROM ANNOUNCEMENTS ORDER BY ANN_TIME";
 				
 					// execute query
-					$result1 = mysql_query($sql1) or die("aSQL select statement failed");
+					$result1 = db_query($sql1) or die("aSQL select statement failed");
 				}
 				
 				// Papar table
@@ -227,7 +228,8 @@
                                     </thead>
                                     <tbody>
 										<?php
-											while ($row = mysql_fetch_array($result1))
+											$BIL = 0;
+											while ($row = mysqli_fetch_array($result1))
 											{
 												$BIL++;
 												
@@ -240,15 +242,15 @@
 												// output student information
 												?>
 												<tr>
-													<td><?php print($BIL); ?></td>
-													<td><?php print($ANN_TITLE); ?></td>
-													<td><?php print($ANN_CONTENT); ?></td>
-													<td><?php print($ANN_AUTH); ?></td>
+													<td><?php print(e($BIL)); ?></td>
+													<td><?php print(e($ANN_TITLE)); ?></td>
+													<td><?php print(e($ANN_CONTENT)); ?></td>
+													<td><?php print(e($ANN_AUTH)); ?></td>
 													<?php
 														if($_SESSION['priv_sisco'] == "ROOT")
 														{
 															?>
-													<td colspan='2'><a target='_blank' href='sunting_makluman.php?ID=<?php print($ANN_ID); ?>'><input type='button' value='Sunting' ></a> <a href='sahkan_makluman.php?ID=<?php print($ANN_ID); ?>'><input type='button' value='Padam' ></a></td>
+													<td colspan='2'><a target='_blank' href='sunting_makluman.php?ID=<?php print(e($ANN_ID)); ?>'><input type='button' value='Sunting' ></a> <a href='sahkan_makluman.php?ID=<?php print(e($ANN_ID)); ?>'><input type='button' value='Padam' ></a></td>
 															<?php
 														}
 													?>

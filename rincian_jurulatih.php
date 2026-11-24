@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if((!$_SESSION['login_sisco']) || ($_SESSION['priv_sisco'] != "ROOT"))
+		if((empty($_SESSION['login_sisco'])) || ($_SESSION['priv_sisco'] != "ROOT"))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name = $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 	?>
 	
     <meta charset="utf-8">
@@ -85,7 +86,7 @@
             <ul class="nav navbar-top-links navbar-right">
 				<li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
-					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
                 <li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/JCIS/tukar_kl.php" onclick ="NewWindow('../SISCO/JCIS/tukar_kl.php','name','720','300','yes');return false;">
@@ -213,6 +214,8 @@
                         </div>
                         <!-- /.panel-heading -->
 						<?php
+							$ID = "";							
+							$T_ID = "";
 							if(isset($_GET['ID']))
 							{
 								$ID		= $_GET['ID'];
@@ -224,13 +227,13 @@
 							}
 
 							// create the query
-							$sql = "SELECT * FROM TRAINER WHERE T_ID = $ID";
+							$sql = "SELECT * FROM TRAINER WHERE T_ID = ?";
 							
 							// execute query
-							$result = mysql_query($sql) or die("SQL select statement failed");
+							$result = db_query($sql, [$ID]) or die("SQL select statement failed");
 							
 							// iterate through all rows in result set
-							if($row = mysql_fetch_array($result))
+							if($row = mysqli_fetch_array($result))
 							{
 								// extract specific fields
 								$T_ID		= $row['T_ID'];
@@ -246,9 +249,9 @@
 								$T_EXP		= $row['T_EXP'];
 								
 								// Decode codes into string
-								$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = '$T_CRS'";
-								$result_dispay = mysql_query($sql_display);
-								while($row = mysql_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
+								$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = ?";
+								$result_dispay = db_query($sql_display, [$T_CRS]);
+								while($row = mysqli_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
 						?>
                         <div class="panel-body">
 							
@@ -268,39 +271,39 @@
                                     <tbody>
                                         <tr>
                                             <th>Nombor Staff </th>
-                                            <td><?php print($T_ID); ?></td>
+                                            <td><?php print(e($T_ID)); ?></td>
                                            
                                             
                                         </tr>
                                         <tr>
                                             <th>Nama </th>
-                                            <td><?php print($T_NAME); ?></td>
+                                            <td><?php print(e($T_NAME)); ?></td>
                                             
                                             
                                         </tr>
                                         <tr>
                                             <th>Nombor K/P </th>
-                                            <td><?php print($T_IC); ?></td>  
+                                            <td><?php print(e($T_IC)); ?></td>  
                                         </tr>
 										<tr>
 											<th>Jantina </th>
-											<td><?php print($T_SEX); ?></td>
+											<td><?php print(e($T_SEX)); ?></td>
 										</tr>
 										<tr>
 											<th>Alamat </th>
-											<td><?php print($T_ADDR); ?></td>
+											<td><?php print(e($T_ADDR)); ?></td>
 										</tr>
 										<tr>
 											<th>No Telefon </th>
-											<td><?php print($T_TEL); ?></td>
+											<td><?php print(e($T_TEL)); ?></td>
 										</tr>
 										<tr>
 											<th>E-Mel </th>
-											<td><?php print($T_MAIL); ?></td>
+											<td><?php print(e($T_MAIL)); ?></td>
 										</tr>
 										<tr>
 											<th>Nombor Akaun Bank </th>
-											<td><?php print($T_BANK); ?></td>
+											<td><?php print(e($T_BANK)); ?></td>
 										</tr>
                                     </tbody>
 									
@@ -316,18 +319,18 @@
 									<tbody>
 										<tr>
                                             <th>Kursus Kor </th>
-                                            <td><?php print($T_CRS); ?></td>     
+                                            <td><?php print(e($T_CRS)); ?></td>     
                                         </tr>
 										<tr>
                                             <th>Platun </th>
-                                            <td><?php print($T_PLTN); ?></td>     
+                                            <td><?php print(e($T_PLTN)); ?></td>     
                                         </tr>
 										<tr>
                                             <th>Pengalaman </th>
-                                            <td><?php print($T_EXP); ?></td>     
+                                            <td><?php print(e($T_EXP)); ?></td>     
                                         </tr>
 										<tr>
-                                            <td align='center' colspan='2'><a target='_blank' href='pinda_jurulatih.php?ID=<?php print($T_ID); ?>'><input type='button' value='Pinda Rekod' ></a> <input type='button' value='Padam Rekod' onClick=confirmDel() ></td>     
+                                            <td align='center' colspan='2'><a target='_blank' href='pinda_jurulatih.php?ID=<?php print(e($T_ID)); ?>'><input type='button' value='Pinda Rekod' ></a> <input type='button' value='Padam Rekod' onClick=confirmDel() ></td>     
                                         </tr>
                                     </tbody>
 									
@@ -395,7 +398,7 @@
 			var del = confirm("Adakah anda pasti untuk memadam rekod ini?");
 			if (del == true)
 			{
-				window.location.assign("padam_jurulatih.php?ID=<?php print($T_ID); ?>");
+				window.location.assign("padam_jurulatih.php?ID=<?php print(e($T_ID)); ?>");
 			} else 
 			{
 				alert("Rekod tidak di padam.");

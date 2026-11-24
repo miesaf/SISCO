@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if((!$_SESSION['login_sisco']) || ($_SESSION['priv_sisco'] != "ROOT"))
+		if((empty($_SESSION['login_sisco'])) || ($_SESSION['priv_sisco'] != "ROOT"))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name = $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 	?>
 	
     <meta charset="utf-8">
@@ -66,7 +67,7 @@
             <ul class="nav navbar-top-links navbar-right">
                 <li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
-					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -189,10 +190,10 @@
 				{
 					$CARI_ID	= $_GET['cari_id'];
 					// create the listing query
-					$sql = "SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_ID LIKE '%$CARI_ID%' UNION SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_NAME LIKE '%$CARI_ID%' UNION SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_TYPE LIKE '%$CARI_ID%' ORDER BY SA_TYPE, SA_NAME";
+					$sql = "SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_ID LIKE ? UNION SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_NAME LIKE ? UNION SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_TYPE LIKE ? ORDER BY SA_TYPE, SA_NAME";
 					
 					// execute listing query
-					$result1 = mysql_query($sql) or die("SQL select statement failed");
+					$result1 = db_query($sql, ['%' . $CARI_ID . '%', '%' . $CARI_ID . '%', '%' . $CARI_ID . '%']) or die("SQL select statement failed");
 				}
 				else
 				{
@@ -201,7 +202,7 @@
 					$sql1 = "SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR ORDER BY SA_TYPE, SA_NAME";
 				
 					// execute query
-					$result1 = mysql_query($sql1) or die("SQL select statement failed");
+					$result1 = db_query($sql1) or die("SQL select statement failed");
 				}
 				
 				// Papar table
@@ -227,7 +228,8 @@
                                     </thead>
                                     <tbody>
 										<?php
-											while ($row = mysql_fetch_array($result1))
+											$BIL = 0;
+											while ($row = mysqli_fetch_array($result1))
 											{
 												$BIL++;
 												
@@ -239,11 +241,11 @@
 												// output student information
 												?>
 												<tr>
-													<td><?php print($BIL); ?></td>
-													<td><?php print($SA_ID); ?></td>
-													<td><?php print($SA_NAME); ?></td>
-													<td><?php print($SA_TYPE); ?></td>
-													<td colspan='2'><a target='_blank' href='pinda_pentadbir.php?ID=<?php print($SA_ID); ?>'><input type='button' value='Pinda Akaun' ></a> <a href='sahkan_padam.php?ID=<?php print($SA_ID); ?>'><input type='button' value='Padam Akaun' ></a></td>
+													<td><?php print(e($BIL)); ?></td>
+													<td><?php print(e($SA_ID)); ?></td>
+													<td><?php print(e($SA_NAME)); ?></td>
+													<td><?php print(e($SA_TYPE)); ?></td>
+													<td colspan='2'><a target='_blank' href='pinda_pentadbir.php?ID=<?php print(e($SA_ID)); ?>'><input type='button' value='Pinda Akaun' ></a> <a href='sahkan_padam.php?ID=<?php print(e($SA_ID)); ?>'><input type='button' value='Padam Akaun' ></a></td>
 												</tr>
 												<?php
 											}

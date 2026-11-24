@@ -1,3 +1,4 @@
+<?php ob_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -125,25 +126,25 @@
 									<?php
 									
 										
-										//connect to MySQL database server
-										include('connectDB.php');
+										//connect to MySQLi database server
+										require_once __DIR__ . '/connectDB.php';
 
 										$query = "SELECT * FROM ANNOUNCEMENTS ORDER BY ANN_TIME"; 
-										$result = mysql_query($query) or die(mysql_error());
+										$result = db_query($query) or die("SQL statement failed.");
 
-										while($row = mysql_fetch_array($result))
+										while($row = mysqli_fetch_array($result))
 										{
 											?>
 											<div class="panel panel-default">
 												<div class="panel-heading">
 													<h4 class="panel-title">
-														<a data-toggle="collapse" data-parent="#accordion"><?php print($row['ANN_TITLE']); ?></a>
+														<a data-toggle="collapse" data-parent="#accordion"><?php print(e($row['ANN_TITLE'])); ?></a>
 													</h4>
 												</div>
 												<div id="collapseOne" class="panel-collapse collapse in">
 													<div class="panel-body">
-														<pre><?php print($row['ANN_CONTENT'] . "</pre>" . "<b>Oleh : </b>" . $row['ANN_AUTH']); ?>
-														<th>(<?php print($row['ANN_TIME']); ?>)</th>
+														<pre><?php print(e($row['ANN_CONTENT']) . "</pre>" . "<b>Oleh : </b>" . e($row['ANN_AUTH'])); ?>
+														<th>(<?php print(e($row['ANN_TIME'])); ?>)</th>
 													</div>
 												</div>
 											</div>

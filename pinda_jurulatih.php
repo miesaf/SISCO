@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if((!$_SESSION['login_sisco']) || ($_SESSION['priv_sisco'] == "TRNR"))
+		if((empty($_SESSION['login_sisco'])) || ($_SESSION['priv_sisco'] == "TRNR"))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name	= $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 		
 		// Registering data into the database
 		if(isset($_POST['DAFTAR']))
@@ -35,10 +36,10 @@
 			$T_EXP		= $_POST['T_EXP'];
 			
 			//SQL query command
-			$sql="UPDATE TRAINER SET T_ID = '$T_ID', T_NAME = '$T_NAME', T_IC = '$T_IC', T_SEX = '$T_SEX', T_ADDR = '$T_ADDR', T_TEL = '$T_TEL', T_MAIL = '$T_MAIL', T_BANK = '$T_BANK', T_CRS = '$T_CRS', T_PLTN = '$T_PLTN', T_EXP = '$T_EXP' WHERE T_ID = '$ID2'";
+			$sql="UPDATE TRAINER SET T_ID = ?, T_NAME = ?, T_IC = ?, T_SEX = ?, T_ADDR = ?, T_TEL = ?, T_MAIL = ?, T_BANK = ?, T_CRS = ?, T_PLTN = ?, T_EXP = ? WHERE T_ID = ?";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = db_query($sql, [$T_ID, $T_NAME, $T_IC, $T_SEX, $T_ADDR, $T_TEL, $T_MAIL, $T_BANK, $T_CRS, $T_PLTN, $T_EXP, $ID2]);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -55,7 +56,7 @@
 			}
 			else
 			{
-				echo "SQL update statement failed.<br>" . mysql_error();
+				echo "SQL update statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>
@@ -65,6 +66,8 @@
 						</head>
 					</html>';
 			}
+			// the alert above redirects; the form below is not needed
+			exit;
 		}
 	?>
 	
@@ -129,7 +132,7 @@
             <ul class="nav navbar-top-links navbar-right">
                 <li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
-					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -247,13 +250,14 @@
 					$ID = $_GET['ID'];
 			
 					// create the query
-					$sql = "SELECT * FROM TRAINER WHERE T_ID = $ID";
+					$sql = "SELECT * FROM TRAINER WHERE T_ID = ?";
 					
 					// execute query
-					$result = mysql_query($sql) or die("SQL select statement failed");
+					$result = db_query($sql, [$ID]) or die("SQL select statement failed");
 					
 					// iterate through all rows in result set
-					$row = mysql_fetch_array($result);
+					$row = mysqli_fetch_array($result);
+					if (!$row) { echo '<script>window.alert("Rekod tidak dijumpai."); window.history.go(-1);</script>'; exit; }
 					
 					// extract specific fields
 					$T_ID		= $row['T_ID'];
@@ -269,13 +273,13 @@
 					$T_EXP		= $row['T_EXP'];
 					
 					// Decode codes into string
-					$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = '$T_CRS'";
-					$result_dispay = mysql_query($sql_display);
-					while($row = mysql_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
+					$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = ?";
+					$result_dispay = db_query($sql_display, [$T_CRS]);
+					while($row = mysqli_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
 				?>
 
 				<form class="form-register" method="post" action="pinda_jurulatih.php">
-					<input type="hidden" name="ID2" value="<?php print ($T_ID); ?>">
+					<input type="hidden" name="ID2" value="<?php print(e($T_ID)); ?>">
 					<input type="hidden" name="DAFTAR" value="YES">
 
 					<div class="form-register-with-email">
@@ -290,21 +294,21 @@
 							<div class="form-row"><!--No Matrik-->
 								<label>
 									<span >Nombor Staff :</span>
-									<input type="text" name="T_ID" value="<?php print($T_ID); ?>">
+									<input type="text" name="T_ID" value="<?php print(e($T_ID)); ?>">
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Nama-->
 								<label>
 									<span >Nama :</span>
-									<input type="text" name="T_NAME" value="<?php print($T_NAME); ?>">
+									<input type="text" name="T_NAME" value="<?php print(e($T_NAME)); ?>">
 								</label>
 							</div>
 							
 							<div class="form-row"><!--IC-->
 								<label>
 									<span>Nombor K/P :</span>
-									<input type="text" name="T_IC" placeholder="xxxxxx-xx-xxxx" value="<?php print($T_IC); ?>">
+									<input type="text" name="T_IC" placeholder="xxxxxx-xx-xxxx" value="<?php print(e($T_IC)); ?>">
 								</label>
 							</div>
 							
@@ -312,7 +316,7 @@
 								<label>
 									<span>Jantina :</span>
 									<select name="T_SEX">
-										<option value="<?php print($T_SEX); ?>" selected><?php print($T_SEX); ?></option>
+										<option value="<?php print(e($T_SEX)); ?>" selected><?php print(e($T_SEX)); ?></option>
 										<option></option>
 										<option>Sila pilih</option>
 										<option value="Lelaki">Lelaki</option>
@@ -324,28 +328,28 @@
 							<div class="form-row"><!--Address-->
 								<label>
 									<span>Alamat :</span>
-									<textarea name="T_ADDR"><?php print($T_ADDR); ?></textarea>
+									<textarea name="T_ADDR"><?php print(e($T_ADDR)); ?></textarea>
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Phone-->
 								<label>
 									<span>Nombor Telefon :</span>
-									<input type="text" name="T_TEL" placeholder="xxx-xxxx xxx" value="<?php print($T_TEL); ?>">
+									<input type="text" name="T_TEL" placeholder="xxx-xxxx xxx" value="<?php print(e($T_TEL)); ?>">
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Email-->
 								<label>
 									<span>E-Mel :</span>
-									<input type="text" name="T_MAIL" placeholder="xxxxx@xxx.com" value="<?php print($T_MAIL); ?>">
+									<input type="text" name="T_MAIL" placeholder="xxxxx@xxx.com" value="<?php print(e($T_MAIL)); ?>">
 								</label>
 							</div>
 							
 							<div class="form-row"><!--Bank-->
 								<label>
 									<span>Nombor Akaun Bank :</span>
-									<input type="text" name="T_BANK" value="<?php print($T_BANK); ?>">
+									<input type="text" name="T_BANK" value="<?php print(e($T_BANK)); ?>">
 								</label>
 							</div>
 							
@@ -357,17 +361,17 @@
 								<label>
 									<span>Kursus Kor :</span>
 									<select name="T_CRS">
-										<option value="<?php print($T_CRS); ?>" selected><?php print($T_CRS . " - " . $DCRS); ?></option>
+										<option value="<?php print(e($T_CRS)); ?>" selected><?php print(e($T_CRS . " - " . $DCRS)); ?></option>
 										<option></option>
 										<option> Sila pilih </option>
 											<?php
 											$sql_choose = "SELECT * FROM COURSE ORDER BY CR_ID";
-											$result_choose = mysql_query($sql_choose);
-											while ($row = mysql_fetch_array($result_choose))
+											$result_choose = db_query($sql_choose);
+											while ($row = mysqli_fetch_array($result_choose))
 											{
 												$CRS1 = $row["CR_ID"];
 												$CRS2 = $row["CR_NAME"];
-												echo '<option value="' . $CRS1 . '"> ' . $CRS1 . ' - ' . $CRS2 . '</option>';
+												echo '<option value="' . e($CRS1) . '"> ' . e($CRS1) . ' - ' . e($CRS2) . '</option>';
 											} ?>
 									</select>
 								</label>
@@ -377,7 +381,7 @@
 								<label>
 									<span>Platun :</span>
 									<select name="T_PLTN">
-										<option value="<?php print($T_PLTN); ?>" selected><?php print($T_PLTN); ?></option>
+										<option value="<?php print(e($T_PLTN)); ?>" selected><?php print(e($T_PLTN)); ?></option>
 										<option></option>
 										<option>Sila pilih</option>
 										<option value="A">A</option>
@@ -396,7 +400,7 @@
 							<div class="form-row"><!--Remarks-->
 								<label>
 									<span>Pengalaman :</span>
-									<textarea name="T_EXP"><?php print($T_EXP); ?></textarea>
+									<textarea name="T_EXP"><?php print(e($T_EXP)); ?></textarea>
 								</label>
 							</div>			
 

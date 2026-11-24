@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'])
+		if(empty($_SESSION['login_sisco']))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name = $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 	?>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -94,7 +95,7 @@
             <ul class="nav navbar-top-links navbar-right">
 				<li class="dropdown">
 					<?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
-					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print(e($name)); ?></strong>
 				</li>				
                 <li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -226,13 +227,13 @@
                                     <?php																			
 										// create the query
 										$ID = $_SESSION['ident_sisco'];
-										$sql = "SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_ID = $ID";
+										$sql = "SELECT SA_ID, SA_NAME, SA_TYPE FROM ADMINISTRATOR WHERE SA_ID = ?";
 										
 										// execute query
-										$result = mysql_query($sql) or die("SQL select statement failed");
+										$result = db_query($sql, [$ID]) or die("SQL select statement failed");
 										
 										// iterate through all rows in result set
-										$row = mysql_fetch_array($result);
+										$row = mysqli_fetch_array($result);
 									
 										// extract specific fields
 										$NO_MATRIK	= $row["SA_ID"];
@@ -243,7 +244,7 @@
 										<tr>
 											<td colspan="2">
 												<center>
-												<img src="../SISCO/images/<?php print($NO_MATRIK); ?>.png" alt="profile" name="profile" height="200" onerror="this.src='../SISCO/images/tiada_logo.png'">
+												<img src="../SISCO/images/<?php print(e($NO_MATRIK)); ?>.png" alt="profile" name="profile" height="200" onerror="this.src='../SISCO/images/tiada_logo.png'">
 												</center>
 											</td>
 										</tr>
@@ -251,13 +252,13 @@
                                     <tbody>
                                         <tr>
                                             <th>Nombor ID :</th>
-                                            <td><?php print($NO_MATRIK); ?></td>
+                                            <td><?php print(e($NO_MATRIK)); ?></td>
                                            
                                             
                                         </tr>
                                         <tr>
                                             <th>Nama :</th>
-                                            <td><?php print($NAMA); ?></td>
+                                            <td><?php print(e($NAMA)); ?></td>
                                             
                                             
                                         </tr>

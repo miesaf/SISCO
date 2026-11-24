@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'] || ($_SESSION['priv_sisco'] == "TRNR"))
+		if(empty($_SESSION['login_sisco']) || ($_SESSION['priv_sisco'] == "TRNR"))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name	= $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 		
 		// Registering data into the database
 		if(isset($_POST['DAFTAR']))
@@ -33,16 +34,16 @@
 			$T_EXP		= $_POST['T_EXP'];
 			
 			//SQL query command
-			$sql="INSERT INTO TRAINER(T_ID, T_NAME, T_IC, T_SEX, T_ADDR, T_TEL, T_MAIL, T_BANK, T_CRS, T_PLTN, T_EXP) VALUES ('$T_ID', '$T_NAME', '$T_IC', '$T_SEX', '$T_ADDR', '$T_TEL', '$T_MAIL', '$T_BANK', '$T_CRS', '$T_PLTN', '$T_EXP')";
+			$sql="INSERT INTO TRAINER(T_ID, T_NAME, T_IC, T_SEX, T_ADDR, T_TEL, T_MAIL, T_BANK, T_CRS, T_PLTN, T_EXP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			
 			// execute query
-			$exe_sql = mysql_query($sql);
+			$exe_sql = db_query($sql, [$T_ID, $T_NAME, $T_IC, $T_SEX, $T_ADDR, $T_TEL, $T_MAIL, $T_BANK, $T_CRS, $T_PLTN, $T_EXP]);
 			
 			//SQL query command
-			$sql2="INSERT INTO ADMINISTRATOR(SA_ID, SA_PW, SA_NAME, SA_TYPE) VALUES ('$T_ID', '$T_IC', '$T_NAME', 'TRNR')";
+			$sql2="INSERT INTO ADMINISTRATOR(SA_ID, SA_PW, SA_NAME, SA_TYPE) VALUES (?, ?, ?, 'TRNR')";
 			
 			// execute query
-			$exe_sql2 = mysql_query($sql2);
+			$exe_sql2 = db_query($sql2, [$T_ID, password_hash($T_IC, PASSWORD_DEFAULT), $T_NAME]);
 			
 			// confirming the record is added
 			if ($exe_sql)
@@ -58,7 +59,7 @@
 			}
 			else
 			{
-				echo "SQL insert statement failed.<br>" . mysql_error();
+				echo "SQL insert statement failed.<br>";
 				echo '<html>
 						<head>
 							<script>
@@ -68,6 +69,8 @@
 						</head>
 					</html>';
 			}
+			// the alert above redirects; the form below is not needed
+			exit;
 		}
 		
 	?>
@@ -132,7 +135,7 @@
                 <li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
 					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); }
-					else if ($_SESSION['priv_sisco'] == "USER") { print ("Selamat Datang "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "USER") { print ("Selamat Datang "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/tukar_kl.php" onclick ="NewWindow('../SISCO/tukar_kl.php','name','720','300','yes');return false;">
@@ -325,12 +328,12 @@
 											<option> Sila pilih </option>
 											<?php
 											$sql_choose = "SELECT * FROM COURSE ORDER BY CR_ID";
-											$result_choose = mysql_query($sql_choose);
-											while ($row = mysql_fetch_array($result_choose))
+											$result_choose = db_query($sql_choose);
+											while ($row = mysqli_fetch_array($result_choose))
 											{
 												$CRS1 = $row["CR_ID"];
 												$CRS2 = $row["CR_NAME"];
-												echo '<option value="' . $CRS1 . '"> ' . $CRS1 . ' - ' . $CRS2 . '</option>';
+												echo '<option value="' . e($CRS1) . '"> ' . e($CRS1) . ' - ' . e($CRS2) . '</option>';
 											} ?>
 										</select>
 								</label>

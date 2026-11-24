@@ -1,15 +1,16 @@
+<?php ob_start(); ?>
 <html>
 <head>
 	<?php
 		session_start();
-		if(!$_SESSION['login_sisco'])
+		if(empty($_SESSION['login_sisco']))
 		{
 			header("Location: daftar_masuk.php?problem=notLoggedIn");
 			exit;
 		}
 		$name = $_SESSION['name_sisco'];
 		
-		include('connectDB.php');
+		require_once __DIR__ . '/connectDB.php';
 	?>
 	
     <meta charset="utf-8">
@@ -85,7 +86,7 @@
             <ul class="nav navbar-top-links navbar-right">
 				<li class="dropdown">
                     <?php if($_SESSION['priv_sisco'] == "ROOT") { print ("Admin "); }
-					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print($name); ?></strong>
+					else if ($_SESSION['priv_sisco'] == "TRNR") { print ("Jurulatih "); } ?><strong><?php print(e($name)); ?></strong>
                 </li>
                 <li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="../SISCO/JCIS/tukar_kl.php" onclick ="NewWindow('../SISCO/JCIS/tukar_kl.php','name','720','300','yes');return false;">
@@ -213,6 +214,8 @@
                         </div>
                         <!-- /.panel-heading -->
 						<?php
+							$ID = "";							
+							$S_ID = "";
 							if(isset($_GET['ID']))
 							{
 								$ID		= $_GET['ID'];
@@ -224,13 +227,13 @@
 							}
 
 							// create the query
-							$sql = "SELECT * FROM STUDENT WHERE S_ID = $ID";
+							$sql = "SELECT * FROM STUDENT WHERE S_ID = ?";
 							
 							// execute query
-							$result = mysql_query($sql) or die("SQL select statement failed");
+							$result = db_query($sql, [$ID]) or die("SQL select statement failed");
 							
 							// iterate through all rows in result set
-							if($row = mysql_fetch_array($result))
+							if($row = mysqli_fetch_array($result))
 							{
 								// extract specific fields
 								$S_ID		= $row['S_ID'];
@@ -256,13 +259,13 @@
 								$S_EXAM		= $row['S_EXAM'];
 								
 								// Decode codes into string
-								$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = '$S_CRS'";
-								$result_dispay = mysql_query($sql_display);
-								while($row = mysql_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
+								$sql_display = "SELECT CR_NAME FROM COURSE WHERE CR_ID = ?";
+								$result_dispay = db_query($sql_display, [$S_CRS]);
+								while($row = mysqli_fetch_array($result_dispay)) { $DCRS = $row["CR_NAME"]; }
 								
-								$sql_display = "SELECT PR_NAME FROM PROGRAM WHERE PR_ID = '$S_PROG'";
-								$result_dispay = mysql_query($sql_display);
-								while($row = mysql_fetch_array($result_dispay)) { $DPROG = $row["PR_NAME"]; }
+								$sql_display = "SELECT PR_NAME FROM PROGRAM WHERE PR_ID = ?";
+								$result_dispay = db_query($sql_display, [$S_PROG]);
+								while($row = mysqli_fetch_array($result_dispay)) { $DPROG = $row["PR_NAME"]; }
 						?>
                         <div class="panel-body">
 							
@@ -282,35 +285,35 @@
                                     <tbody>
                                         <tr>
                                             <th>Nombor Matrik </th>
-                                            <td><?php print($S_ID); ?></td>
+                                            <td><?php print(e($S_ID)); ?></td>
                                            
                                             
                                         </tr>
                                         <tr>
                                             <th>Nama </th>
-                                            <td><?php print($S_NAME); ?></td>
+                                            <td><?php print(e($S_NAME)); ?></td>
                                             
                                             
                                         </tr>
                                         <tr>
                                             <th>Nombor K/P </th>
-                                            <td><?php print($S_IC); ?></td>  
+                                            <td><?php print(e($S_IC)); ?></td>  
                                         </tr>
 										<tr>
 											<th>Jantina </th>
-											<td><?php print($S_SEX); ?></td>
+											<td><?php print(e($S_SEX)); ?></td>
 										</tr>
 										<tr>
 											<th>Alamat </th>
-											<td><?php print($S_ADDR); ?></td>
+											<td><?php print(e($S_ADDR)); ?></td>
 										</tr>
 										<tr>
 											<th>No Telefon </th>
-											<td><?php print($S_TEL); ?></td>
+											<td><?php print(e($S_TEL)); ?></td>
 										</tr>
 										<tr>
 											<th>E-Mel </th>
-											<td><?php print($S_MAIL); ?></td>
+											<td><?php print(e($S_MAIL)); ?></td>
 										</tr>
                                     </tbody>
 									
@@ -326,11 +329,11 @@
 									<tbody>
                                         <tr>
                                             <th>Nama Waris </th>
-                                            <td><?php print($S_RLTV); ?></td>     
+                                            <td><?php print(e($S_RLTV)); ?></td>     
                                         </tr>
                                         <tr>
                                             <th>No Telefon </th>
-                                            <td><?php print($S_RVNR); ?></td>      
+                                            <td><?php print(e($S_RVNR)); ?></td>      
                                         </tr>
                                     </tbody>
 									<thead>
@@ -345,58 +348,58 @@
 									<tbody>
                                         <tr>
                                             <th>Saiz Baju </th>
-                                            <td><?php print($S_SIZE); ?></td>     
+                                            <td><?php print(e($S_SIZE)); ?></td>     
                                         </tr>
                                         <tr>
                                             <th>Agama </th>
-                                            <td><?php print($S_RLGN); ?></td>      
+                                            <td><?php print(e($S_RLGN)); ?></td>      
                                         </tr>
 										<tr>
                                             <th>Program </th>
-                                            <td><?php print($S_PROG); ?></td>     
+                                            <td><?php print(e($S_PROG)); ?></td>     
                                         </tr>
 										<tr>
                                             <th>Bahagian </th>
-                                            <td><?php print($S_PART); ?></td>     
+                                            <td><?php print(e($S_PART)); ?></td>     
                                         </tr>
 										<tr>
                                             <th>Kursus Kor </th>
-                                            <td><?php print($S_CRS); ?></td>     
+                                            <td><?php print(e($S_CRS)); ?></td>     
                                         </tr>
 										<tr>
                                             <th>Platun </th>
-                                            <td><?php print($S_PLTN); ?></td>     
+                                            <td><?php print(e($S_PLTN)); ?></td>     
                                         </tr>
 										<tr>
                                             <th>Kolej Kediaman </th>
-                                            <td><?php print($S_RSDN); ?></td>     
+                                            <td><?php print(e($S_RSDN)); ?></td>     
                                         </tr>
 										<tr>
                                             <th>Kumpulan Darah </th>
-                                            <td><?php print($S_BLOOD); ?></td>     
+                                            <td><?php print(e($S_BLOOD)); ?></td>     
                                         </tr>
 										<tr>
                                             <th>Sejarah Kesihatan </th>
-                                            <td><?php print($S_HEALTH); ?></td>     
+                                            <td><?php print(e($S_HEALTH)); ?></td>     
                                         </tr>
 										<tr>
                                             <th>Alahan </th>
-                                            <td><?php print($S_ALGY); ?></td>     
+                                            <td><?php print(e($S_ALGY)); ?></td>     
                                         </tr>
 										<tr>
                                             <th>Markah Latihan Padang </th>
-                                            <td><?php print($S_FPNT); ?></td>     
+                                            <td><?php print(e($S_FPNT)); ?></td>     
                                         </tr>
 										<tr>
                                             <th>Markah Peperiksaan Akhir </th>
-                                            <td><?php print($S_EXAM); ?></td>     
+                                            <td><?php print(e($S_EXAM)); ?></td>     
                                         </tr>
 										<?php
 											if($_SESSION['priv_sisco'] == "ROOT")
 											{
 											?>
 										<tr>
-                                            <td align='center' colspan='2'><a target='_blank' href='pinda_pelajar.php?ID=<?php print($S_ID); ?>'><input type='button' value='Pinda Rekod' ></a> <input type='button' value='Padam Rekod' onClick=confirmDel() ></td>     
+                                            <td align='center' colspan='2'><a target='_blank' href='pinda_pelajar.php?ID=<?php print(e($S_ID)); ?>'><input type='button' value='Pinda Rekod' ></a> <input type='button' value='Padam Rekod' onClick=confirmDel() ></td>     
                                         </tr>
 											<?php
 											}
@@ -467,7 +470,7 @@
 			var del = confirm("Adakah anda pasti untuk memadam rekod ini?");
 			if (del == true)
 			{
-				window.location.assign("padam_pelajar.php?ID=<?php print($S_ID); ?>");
+				window.location.assign("padam_pelajar.php?ID=<?php print(e($S_ID)); ?>");
 			} else 
 			{
 				alert("Rekod tidak di padam.");
