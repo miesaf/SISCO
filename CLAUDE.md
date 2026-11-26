@@ -10,8 +10,8 @@ Dec 2014 – Apr 2015 semester (CS110, UiTM Johor, Segamat campus): native PHP p
 database. It is an **archived project**, not a live system. Its data is from 2015.
 
 - Live copy: **https://app.dimensikini.xyz/SISCO/**, entry 11 in the owner's project archive ("Server Arkib Projek
-  Dimensi Kini"). The other archived projects there run unchanged on PHP 7.4; SISCO alone runs on **PHP 8.5** through its
-  own `.htaccess` (`SetHandler application/x-lsphp85`).
+  Dimensi Kini"). Its own `.htaccess` pins **PHP 8.5** (`SetHandler application/x-lsphp85`), as every app in the
+  archive does since 2026-11-26; the site itself defaults to PHP 8.5 since 2026-11-27, but keep the pin.
 - History: first hosted at `dimensikini.xyz/SISCO` (mysql_* code, then the mysqli version of 2020-08-02, PHP 7.4).
   Moved to app.dimensikini.xyz and ported to PHP 8.5 on 2026-11-24 (PR #1; ClickUp `86d4dhmfn`). The old URL
   301-redirects to the new one. SISCO is **not** part of PRISKOR or JCIS.
@@ -50,6 +50,13 @@ PHP 8.5 with mysqli and a local MariaDB (the owner uses EnvKit). Import a dump i
 `sql/2026-11-hash-passwords.sql` and `php tools/hash-passwords.php`. Serve the **parent** of a folder named `SISCO`
 (a symlink works) with `php -d display_errors=1 -d error_reporting=-1 -S 127.0.0.1:8126 -t <parent>` and open
 `/SISCO/`. The built-in server ignores `.htaccess`, so check the deny rules on the real host.
+
+## Status (2026-11-27)
+
+- Every app in the archive runs on PHP 8.5 since 2026-11-26 (ClickUp `86d4e29pu`), and the site defaults to PHP 8.5
+  since 2026-11-27.
+- The archive's root `.htaccess` (not in this repo) also refuses `..` requests and serves no `connectDB.php`, `config.json`,
+  `*.sql`, `*.log`, `*.md`, `error_log`, `LICENSE*` or composer/package files in any folder.
 
 ## Deploy
 
